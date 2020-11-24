@@ -81,6 +81,7 @@ void moveright( void ) {
   }
 }
 
+
 /* This function is called repetitively from the main program */
 void labwork( void ) {
 
@@ -92,5 +93,8 @@ void labwork( void ) {
     moveleft();
     display_update();
   }
+
+  //prime = nextprime( prime );
+  //display_string( 0, itoaconv( prime ) );
 
 }
