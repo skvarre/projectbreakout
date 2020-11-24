@@ -1,7 +1,7 @@
 # projectbreakout
 This games objective is to break all the blocks at the top of the screen and indoing so collecting a high score.
 
-Just like in Pong there is a paddle that theplayer controls to bounce the ball and the trajectory of the ball is determinedby which angle the ball hits the paddle.  The player have a set number of livesthat are lost if the ball leaves the playing field.
+Just like in Pong there is a paddle that theplayer controls to bounce the ball and the trajectory of the ball is determined by which angle the ball hits the paddle.  The player have a set number of livesthat are lost if the ball leaves the playing field.
 
 The following are requirements that are crucial to the success of the project:
 
