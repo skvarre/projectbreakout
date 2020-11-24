@@ -19,6 +19,7 @@ int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 
+int pos = 312;
 
 
 /* Interrupt Service Routine */
@@ -62,9 +63,34 @@ void labinit( void )
   enable_interrupt();
 }
 
+void moveleft( void ) {
+  if(field[pos-1] == 0) {
+    field[pos+3] = 0;
+    field[pos-1] = 24;
+    pos--;
+    quicksleep(200);
+  }
+}
+
+void moveright( void ) {
+  if(field[pos+4] == 0) {
+  field[pos] = 0;
+  field[pos+4] = 24;
+  pos++;
+  quicksleep(200);
+  }
+}
+
 /* This function is called repetitively from the main program */
 void labwork( void ) {
-  //prime = nextprime( prime );
-  //display_string( 0, itoaconv( prime ) );
-  display_update();
+
+  if(getbtns() == 2){           // check if btn2/3/4 is pressed
+    moveright();
+    display_update();
+  }
+  if(getbtns() == 4){           // check if btn2/3/4 is pressed
+    moveleft();
+    display_update();
+  }
+
 }

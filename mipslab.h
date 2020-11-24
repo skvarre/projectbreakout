@@ -40,7 +40,7 @@ extern const uint8_t const font[128*8];
 /* Declare text buffer for display output */
 extern char textbuffer[4][16];
 
-extern uint8_t const field[16*128];
+extern uint8_t field[16*128];
 
 /* Declare functions written by students.
    Note: Since we declare these functions here,
