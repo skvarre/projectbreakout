@@ -19,7 +19,7 @@ int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 
-int pos = 312;
+int pos = 409;
 
 
 /* Interrupt Service Routine */
@@ -65,17 +65,17 @@ void labinit( void )
 
 void moveleft( void ) {
   if(field[pos-1] == 0) {
-    field[pos+3] = 0;
-    field[pos-1] = 24;
+    field[pos+7] = 0;
+    field[pos-1] = 32;
     pos--;
     quicksleep(200);
   }
 }
 
 void moveright( void ) {
-  if(field[pos+4] == 0) {
+  if(field[pos+8] == 0) {
   field[pos] = 0;
-  field[pos+4] = 24;
+  field[pos+8] = 32;
   pos++;
   quicksleep(200);
   }
