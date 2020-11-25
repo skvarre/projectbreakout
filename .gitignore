@@ -1,0 +1,6 @@
+# Prerequisites
+*.o
+*.hex
+*.elf
+.DS_Store
+.deps/
