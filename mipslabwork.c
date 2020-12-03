@@ -68,7 +68,7 @@ void moveleft( void ) {
     field[pos+7] = 0;
     field[pos-1] = 32;
     pos--;
-    quicksleep(200);
+    //quicksleep(200);
   }
 }
 
@@ -77,10 +77,23 @@ void moveright( void ) {
   field[pos] = 0;
   field[pos+8] = 32;
   pos++;
-  quicksleep(200);
+  //quicksleep(200);
   }
 }
 
+void lit(int x, int y){
+  field[128*(y>>3)+x] = (field[128*(y>>3)+x] | (0x1 << (y % 8)));
+}
+
+/*void scale(int x, int y, int w, int h){
+  int i = h-1;
+  int j = w-1;
+  for(i; i >= 0; i--){
+    for(j; j >= 0; j--){
+      lit(x+j, y+i);
+    }
+  }
+}
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
@@ -88,11 +101,18 @@ void labwork( void ) {
   if(getbtns() == 2){           // check if btn2/3/4 is pressed
     moveright();
     display_update();
+    quicksleep(100000);
   }
   if(getbtns() == 4){           // check if btn2/3/4 is pressed
     moveleft();
     display_update();
+    quicksleep(100000);
   }
+  /*if(getbtns() == 1){
+      scale(28,28,2,2);
+      display_update();
+      quicksleep(1000000);
+  }*/
 
   //prime = nextprime( prime );
   //display_string( 0, itoaconv( prime ) );
