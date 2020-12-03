@@ -12,6 +12,7 @@
 
 #include <stdint.h>   /* Declarations of uint_32 and the like */
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
+#include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
 
 int mytime = 0x5957;
@@ -21,6 +22,7 @@ int timeoutcount = 0;
 
 int pos = 409;
 
+uint8_t buffer[4*128];
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
@@ -82,7 +84,11 @@ void moveright( void ) {
 }
 
 void lit(int x, int y){
-  field[128*(y>>3)+x] = (field[128*(y>>3)+x] | (0x1 << (y % 8)));
+  int i = 0;
+  for(i; i < 512; i++){
+    buffer[i] = field[i];
+  }
+  buffer[128*(y>>3)+x] = (buffer[128*(y>>3)+x] | (0x1 << (y % 8)));
 }
 
 /*void scale(int x, int y, int w, int h){
@@ -93,7 +99,9 @@ void lit(int x, int y){
       lit(x+j, y+i);
     }
   }
-}
+}*/
+
+
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
@@ -108,13 +116,20 @@ void labwork( void ) {
     display_update();
     quicksleep(100000);
   }
-  /*if(getbtns() == 1){
-      scale(28,28,2,2);
+  if(getbtns() == 1){
+    int x = 28;
+    int y = 26;
+    while(1){
+      lit(x,y);
       display_update();
-      quicksleep(1000000);
-  }*/
+      y--;
+      quicksleep(10000000);
+    }
+  }
 
-  //prime = nextprime( prime );
-  //display_string( 0, itoaconv( prime ) );
+  if(IFS(0)){
+    IFS(0) = 0x0;
+
+  }
 
 }
