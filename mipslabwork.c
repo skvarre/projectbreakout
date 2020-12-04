@@ -20,6 +20,7 @@ int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 int menupointer = 0; 
+int state = 0;
 
 int pos = 409;
 
@@ -67,12 +68,14 @@ void user_isr( void ) {
     IFS(0) &= ~0x100;
     timeoutcount++;
     if(timeoutcount == 1){
-      lit(x,y,2,2);
-      display_update();
-      if(y == 15){
-        y = 27;
+      if(state == 1){
+        lit(x,y,2,2);
+        if(y == 15){
+          y = 27;
+        }
+        y--;
       }
-      y--;
+      display_update();
       timeoutcount = 0;
     }
   }
@@ -129,31 +132,57 @@ void start(){
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
-  if(getbtns() == 2){           // check if btn2/3/4 is pressed
-    moveright();
-    quicksleep(100000);
-  }
 
-  if(getbtns() == 4){           // check if btn2/3/4 is pressed
-    moveleft();
-    quicksleep(100000);
-  }
-
-  if(getbtns() == 4){
-    if(menupointer != 0){
-      menupointer--;
-      start();
-      display_update();
-      quicksleep(1000000);
-    }
-  }
-  if(getbtns() == 2){
+  switch(state){
+    
+    case 0:
+    if(getbtns() == 2){
       if(menupointer != 2){
         menupointer++;
         start();
         display_update();
         quicksleep(1000000);
+        }
+      }  
+
+    if(getbtns() == 4){
+      if(menupointer != 0){
+        menupointer--;
+        start();
+        display_update();
+        quicksleep(1000000);
       }
+    }
+
+    if(getbtns() == 1){           // check if btn2/3/4 is pressed
+      switch(menupointer){
+        case 0:
+          state = 1;
+          lit(x, y, px, py);
+          display_update();
+        break;
+        case 1:
+        break;
+        case 2:
+        break;
+        default:
+        break;
+      }
+
+    } 
+    break;
+    case 1:
+      if(getbtns() == 2){           // check if btn2/3/4 is pressed
+        moveright();
+        quicksleep(100000);
+      }
+      if(getbtns() == 4){           // check if btn2/3/4 is pressed
+      moveleft();
+      quicksleep(100000);
+      } 
+    break;
+    default:
+    break;
   }
 
 }
