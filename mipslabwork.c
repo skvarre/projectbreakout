@@ -22,17 +22,25 @@ int timeoutcount = 0;
 int menupointer = 0;
 int state = 0;
 
+/* Position of players in array*/
 int pos = 409;
+int pos2 = 480;
 
+/* Ball coordinates */
 int x = 52;
 int y = 26;
 
+/* Player 1 coordinates */
 int px = 25;
 int py = 29;
 
+/* Player 2 coordinates */
+int px2 = 96;
+int py2 = 29;
+
 uint8_t buffer[4*128];
 
-void lit(int x, int y, int px, int py){
+void lit(int x, int y, int px, int py, int px2, int py2){
   int k = 0;
   for(k; k < 512; k++){
     buffer[k] = field[k];
@@ -47,6 +55,7 @@ void lit(int x, int y, int px, int py){
   int l = 7;
   for(l; l >= 0; l--){
     buffer[128*(py>>3)+(px+l)] = (buffer[128*(py>>3)+(px+l)] | (0x1 << (py % 8)));
+    buffer[128*(py2>>3)+(px2+l)] = (buffer[128*(py2>>3)+(px2+l)] | (0x1 << (py2 % 8)));
   }
 }
 
@@ -69,7 +78,7 @@ void lit_pad(int x, int y){
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
     if(state == 1){
-      lit(x,y,px,py);
+      lit(x,y,px,py,px2,py2);
     }
     //display_update();
     IFS(0) &= ~0x100;
@@ -95,6 +104,7 @@ void labinit( void )
   *trise&=255;
   *(trise + 0x10) = 0; /* setting porte to 0 */
   TRISD |= 0xfe0;
+  TRISF |= 0x2;
 
   T2CON = 0x70; //Decides what scaler we want to use
   TMR2 = 0x0;
@@ -121,6 +131,20 @@ void moveright( void ) {
   if(!(field[pos+8] & 0x20)){
     px++;
     pos++;
+  }
+}
+
+void moveleftp2( void ) {
+  if(!(field[pos2-1] & 0x20)) {
+    px2--;
+    pos2--;
+  }
+}
+
+void moverightp2( void ) {
+  if(!(field[pos2+8] & 0x20)){
+    px2++;
+    pos2++;
   }
 }
 
@@ -163,7 +187,7 @@ void labwork( void ) {
       switch(menupointer){
         case 0:
           state = 1;
-          lit(x, y, px, py);
+          lit(x, y, px, py, px2, py2);
           display_update();
         break;
         case 1:
@@ -177,12 +201,20 @@ void labwork( void ) {
     }
     break;
     case 1:
-      if(getbtns() == 2){           // check if btn2/3/4 is pressed
+      if(getbtns() == 2){           // BTN3
         moveright();
         quicksleep(100000);
       }
-      if(getbtns() == 4){           // check if btn2/3/4 is pressed
+      if(getbtns() == 4){           // BTN4
         moveleft();
+        quicksleep(100000);
+      }
+      if(getbtns() == 1){           // BTN2
+        moveleftp2();
+        quicksleep(100000);
+      }
+      if(getbtn1() == 1){           // BTN1
+        moverightp2();
         quicksleep(100000);
       }
     break;
