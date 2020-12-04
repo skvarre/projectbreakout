@@ -38,6 +38,8 @@ int py = 29;
 int px2 = 96;
 int py2 = 29;
 
+int btn_status;
+
 uint8_t buffer[4*128];
 
 void lit(int x, int y, int px, int py, int px2, int py2){
@@ -198,22 +200,14 @@ void labwork( void ) {
     }
     break;
     case 1:
-      if(getbtns() == 2){           // BTN3
-        moveright();
-        quicksleep(100000);
-      }
-      if(getbtns() == 4){           // BTN4
-        moveleft();
-        quicksleep(100000);
-      }
-      if(getbtns() == 1){           // BTN2
-        moveleftp2();
-        quicksleep(100000);
-      }
-      if(getbtn1() == 1){           // BTN1
-        moverightp2();
-        quicksleep(100000);
-      }
+
+      btn_status = getbtns();
+      if(btn_status & 0x1){moveleftp2();}
+      if(btn_status & 0x2){moveright();}
+      if(btn_status & 0x4){moveleft();}
+      if(btn_status & 0x8){moverightp2();}
+      quicksleep(100000);
+
     break;
     default:
     break;
