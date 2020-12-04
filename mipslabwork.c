@@ -19,7 +19,7 @@ int mytime = 0x5957;
 int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
-int menupointer = 0; 
+int menupointer = 0;
 int state = 0;
 
 int pos = 409;
@@ -32,17 +32,21 @@ int py = 29;
 
 uint8_t buffer[4*128];
 
-void lit(int x, int y, int w, int h){
+void lit(int x, int y, int px, int py){
   int k = 0;
   for(k; k < 512; k++){
     buffer[k] = field[k];
   }
-  int i = h-1;
+  int i = 1;
   for(i; i >= 0; i--){
-    int j = w-1;
+    int j = 1;
     for(j; j >= 0; j--){
       buffer[128*((y+i)>>3)+(x+j)] = (buffer[128*((y+i)>>3)+(x+j)] | (0x1 << ((y+i) % 8)));
     }
+  }
+  int l = 7;
+  for(l; l >= 0; l--){
+    buffer[128*(py>>3)+(px+l)] = (buffer[128*(py>>3)+(px+l)] | (0x1 << (py % 8)));
   }
 }
 
@@ -64,20 +68,23 @@ void lit_pad(int x, int y){
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
-    display_update();
+    if(state == 1){
+      lit(x,y,px,py);
+    }
+    //display_update();
     IFS(0) &= ~0x100;
     timeoutcount++;
-    if(timeoutcount == 1){
+    if(timeoutcount == 10){
       if(state == 1){
-        lit(x,y,2,2);
+        //lit(x,y,px,py);
         if(y == 15){
           y = 27;
         }
         y--;
       }
-      display_update();
       timeoutcount = 0;
     }
+    display_update();
   }
 }
 
@@ -91,7 +98,7 @@ void labinit( void )
 
   T2CON = 0x70; //Decides what scaler we want to use
   TMR2 = 0x0;
-  PR2 = (80000000/256)/10;
+  PR2 = (80000000/256)/100;
 
   PORTE = 0;
   //IPC(3) &= 0x1b000000;
@@ -104,17 +111,15 @@ void labinit( void )
 }
 
 void moveleft( void ) {
-    if(!(field[pos-1] & 0x20)){
-    field[pos+7] = 0;
-    field[pos-1] = 32;
+  if(!(field[pos-1] & 0x20)) {
+    px--;
     pos--;
   }
 }
 
 void moveright( void ) {
   if(!(field[pos+8] & 0x20)){
-    field[pos] = 0;
-    field[pos+8] = 32;
+    px++;
     pos++;
   }
 }
@@ -134,7 +139,7 @@ void start(){
 void labwork( void ) {
 
   switch(state){
-    
+
     case 0:
     if(getbtns() == 2){
       if(menupointer != 2){
@@ -143,7 +148,7 @@ void labwork( void ) {
         display_update();
         quicksleep(1000000);
         }
-      }  
+      }
 
     if(getbtns() == 4){
       if(menupointer != 0){
@@ -169,7 +174,7 @@ void labwork( void ) {
         break;
       }
 
-    } 
+    }
     break;
     case 1:
       if(getbtns() == 2){           // check if btn2/3/4 is pressed
@@ -177,9 +182,9 @@ void labwork( void ) {
         quicksleep(100000);
       }
       if(getbtns() == 4){           // check if btn2/3/4 is pressed
-      moveleft();
-      quicksleep(100000);
-      } 
+        moveleft();
+        quicksleep(100000);
+      }
     break;
     default:
     break;
