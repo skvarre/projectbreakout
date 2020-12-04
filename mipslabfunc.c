@@ -177,12 +177,7 @@ void display_update(void) {
 
 		for(j = 0; j < 128; j++) {
 			c = buffer[128*i+j];
-		spi_send_recv(c);
-		//	if(c & 0x80)
-		//		continue;
-
-		//	for(k = 0; k < 8; k++)
-		//		spi_send_recv(font[c*8 + k]);
+			spi_send_recv(c);
 		}
 	}
 }
