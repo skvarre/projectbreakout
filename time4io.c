@@ -7,9 +7,5 @@ int getsw(){
 }
 
 int getbtns(){
-    return (PORTD & 0xe0) >> 5;
-}
-
-int getbtn1(){
-    return (PORTF & 0x2) >> 1;
+    return ((PORTD & 0xe0) >> 5) | ((PORTF & 0x2) << 2);
 }
