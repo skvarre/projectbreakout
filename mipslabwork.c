@@ -19,6 +19,7 @@ int mytime = 0x5957;
 int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
+int menupointer = 0; 
 
 int pos = 409;
 
@@ -115,14 +116,44 @@ void moveright( void ) {
   }
 }
 
+void start(){
+  int i = 0;
+  for(i; i<512; i++){
+    buffer[i] = startscreen[i];
+  }
+  buffer[(385+43*menupointer)] = 31;
+  buffer[(385+43*menupointer)+1] = 14;
+  buffer[(385+43*menupointer)+2] = 4;
+}
+
+
 /* This function is called repetitively from the main program */
 void labwork( void ) {
   if(getbtns() == 2){           // check if btn2/3/4 is pressed
     moveright();
     quicksleep(100000);
   }
+
   if(getbtns() == 4){           // check if btn2/3/4 is pressed
     moveleft();
     quicksleep(100000);
   }
+
+  if(getbtns() == 4){
+    if(menupointer != 0){
+      menupointer--;
+      start();
+      display_update();
+      quicksleep(1000000);
+    }
+  }
+  if(getbtns() == 2){
+      if(menupointer != 2){
+        menupointer++;
+        start();
+        display_update();
+        quicksleep(1000000);
+      }
+  }
+
 }
