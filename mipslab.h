@@ -54,5 +54,6 @@ void delay(int);
 void time2string( char *, int );
 /* Written as part of i/o lab: getbtns, getsw, enable_interrupt */
 int getbtns(void);
+int getbtn1(void);
 int getsw(void);
 void enable_interrupt(void);
