@@ -145,7 +145,6 @@ void labwork( void ) {
       if(menupointer != 2){
         menupointer++;
         start();
-        display_update();
         quicksleep(1000000);
         }
       }
@@ -154,7 +153,6 @@ void labwork( void ) {
       if(menupointer != 0){
         menupointer--;
         start();
-        display_update();
         quicksleep(1000000);
       }
     }
@@ -164,7 +162,6 @@ void labwork( void ) {
         case 0:
           state = 1;
           lit(x, y, px, py);
-          display_update();
         break;
         case 1:
         break;
