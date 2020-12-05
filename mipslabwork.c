@@ -14,10 +14,10 @@
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
-
+/*
 int mytime = 0x5957;
 int prime = 1234567;
-char textstring[] = "text, more text, and even more text!";
+char textstring[] = "text, more text, and even more text!";*/
 int timeoutcount = 0;
 int menupointer = 0;
 int state = 0;
@@ -29,6 +29,9 @@ int pos2 = 480;
 /* Ball coordinates */
 int x = 52;
 int y = 26;
+
+int b_dir = 4;
+int* p = &b_dir;
 
 /* Player 1 coordinates */
 int px = 25;
@@ -61,25 +64,144 @@ void lit(int x, int y, int px, int py, int px2, int py2){
   }
 }
 
-int coll_det(int x, int y){
-  if(buffer[128*(y>>3)+x] & (0x1 << (y % 8))) {
-    return 1;
-  }else{
-    return 0;
+void coll_det(int x, int y, int* p){
+  switch(*p){
+
+    // N
+    case 0:
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 1;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 1;}
+    break;
+
+    // S
+    case 1:
+    if(y == 32){b_dir = 8; break;}
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 0;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 0;}
+    break;
+
+    // W
+    case 2:
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 3;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 3;}
+    break;
+
+    // E
+    case 3:
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 2;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 2;}
+    break;
+
+    // NW
+    case 4:
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 6;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 6;break;}
+
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 5;break;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 5;break;}
+    break;
+
+
+    // NE
+    case 5:
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 7;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 7;break;}
+
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 4;break;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 4;break;}
+    break;
+
+
+    // SW
+    case 6:
+    if(y == 32){b_dir = 8;break;}
+
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 7;break;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 7;break;}
+
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 4;break;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 4;break;}
+    break;
+
+    // SE
+    case 7:
+    if(y == 32){b_dir = 8;break;}
+
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 6;break;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 6;break;}
+
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 5;break;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 5;break;}
+    break;
+
+    default:
+    break;
+
   }
 }
 
+void ball(int b_dir){
+
+  switch(b_dir){
+
+    case 0:
+    y--;
+    break;
+
+    case 1:
+    y++;
+    break;
+
+    case 2:
+    x--;
+    break;
+
+    case 3:
+    x++;
+    break;
+
+    case 4:
+    x--;
+    y--;
+    break;
+
+    case 5:
+    x++;
+    y--;
+    break;
+
+    case 6:
+    x--;
+    y++;
+    break;
+
+    case 7:
+    x++;
+    y++;
+    break;
+
+    case 8:
+    break;
+
+    default:
+    break;
+
+  }
+
+}
+/*
 void lit_pad(int x, int y){
   int j = 7;
   for(j; j >= 0; j--){
     buffer[128*(y>>3)+(x+j)] = (buffer[128*(y>>3)+(x+j)] | (0x1 << (y % 8)));
   }
-}
+}*/
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
     if(state == 1){
+      coll_det(x, y, p);
       lit(x,y,px,py,px2,py2);
     }
     //display_update();
@@ -87,11 +209,7 @@ void user_isr( void ) {
     timeoutcount++;
     if(timeoutcount == 10){
       if(state == 1){
-        //lit(x,y,px,py);
-        if(y == 15){
-          y = 27;
-        }
-        y--;
+        ball(b_dir);
       }
       timeoutcount = 0;
     }
