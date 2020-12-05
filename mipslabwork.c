@@ -278,6 +278,13 @@ void start(){
   buffer[(385+43*menupointer)+2] = 4;
 }
 
+void score(){
+  int i = 0;
+  for(i; i<512; i++){
+    buffer[i] = highscore[i];
+  }
+}
+
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
@@ -310,6 +317,9 @@ void labwork( void ) {
         case 1:
         break;
         case 2:
+          state = 3;
+          score();
+          quicksleep(1000000);
         break;
         default:
         break;
@@ -326,6 +336,16 @@ void labwork( void ) {
       if(btn_status & 0x8){moverightp2();}
       quicksleep(100000);
 
+    break;
+    case 2:
+    break;
+    case 3:
+      if(getbtns() & 0x1){
+        state = 0;
+        start();
+        quicksleep(1000000);
+
+      }
     break;
     default:
     break;
