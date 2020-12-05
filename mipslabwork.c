@@ -27,8 +27,8 @@ int pos = 409;
 int pos2 = 480;
 
 /* Ball coordinates */
-int x = 52;
-int y = 26;
+int x = 28;
+int y = 18;
 
 int b_dir = 4;
 int* p = &b_dir;
@@ -42,6 +42,9 @@ int px2 = 96;
 int py2 = 29;
 
 int btn_status;
+
+int n_dir;
+int* q = &n_dir;
 
 uint8_t buffer[4*128];
 
@@ -64,32 +67,48 @@ void lit(int x, int y, int px, int py, int px2, int py2){
   }
 }
 
-void coll_det(int x, int y, int* p){
+int paddle_hit(int x, int px){
+  int c = px - x;
+  if(c >= -1 && c <= 1){
+    return 4;
+  }
+  if(c >= -4 && c <= -2){
+    return 0;
+  }
+  if(c >= -7 && c <= -5){
+    return 5;
+  }
+  return -1;
+}
+
+void coll_det(int x, int y, int* p, int* n_dir){
   switch(*p){
 
     // N
     case 0:
-    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 1;}
-    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 1;}
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 1;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 1;break;}
     break;
 
     // S
     case 1:
+    if(y == 27 && *n_dir != -1){b_dir = *n_dir;break;}
     if(y == 32){b_dir = 8; break;}
-    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 0;}
-    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 0;}
+
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 0;break;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 0;break;}
     break;
 
     // W
     case 2:
-    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 3;}
-    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 3;}
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 3;break;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 3;break;}
     break;
 
     // E
     case 3:
-    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 2;}
-    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 2;}
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 2;break;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 2;break;}
     break;
 
     // NW
@@ -101,7 +120,6 @@ void coll_det(int x, int y, int* p){
     if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 5;break;}
     break;
 
-
     // NE
     case 5:
     if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 7;break;}
@@ -111,9 +129,9 @@ void coll_det(int x, int y, int* p){
     if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 4;break;}
     break;
 
-
     // SW
     case 6:
+    if(y == 27 && *n_dir != -1){b_dir = *n_dir;break;}
     if(y == 32){b_dir = 8;break;}
 
     if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 7;break;}
@@ -125,6 +143,7 @@ void coll_det(int x, int y, int* p){
 
     // SE
     case 7:
+    if(y == 27 && *n_dir != -1){b_dir = *n_dir;break;}
     if(y == 32){b_dir = 8;break;}
 
     if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 6;break;}
@@ -181,6 +200,13 @@ void ball(int b_dir){
     break;
 
     case 8:
+    /*
+    quicksleep(10000000);
+    x = 28;
+    y = 18;
+    b_dir = 4;
+    quicksleep(10000000);
+    */
     break;
 
     default:
@@ -189,22 +215,15 @@ void ball(int b_dir){
   }
 
 }
-/*
-void lit_pad(int x, int y){
-  int j = 7;
-  for(j; j >= 0; j--){
-    buffer[128*(y>>3)+(x+j)] = (buffer[128*(y>>3)+(x+j)] | (0x1 << (y % 8)));
-  }
-}*/
 
 /* Interrupt Service Routine */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
     if(state == 1){
-      coll_det(x, y, p);
+      if(y == 27){n_dir = paddle_hit(x, px);}
+      coll_det(x, y, p, q);
       lit(x,y,px,py,px2,py2);
     }
-    //display_update();
     IFS(0) &= ~0x100;
     timeoutcount++;
     if(timeoutcount == 10){
@@ -294,7 +313,6 @@ void score(){
   }
 }
 
-
 /* This function is called repetitively from the main program */
 void labwork( void ) {
 
@@ -359,5 +377,4 @@ void labwork( void ) {
     default:
     break;
   }
-
 }
