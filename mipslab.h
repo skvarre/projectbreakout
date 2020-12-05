@@ -42,6 +42,7 @@ extern char textbuffer[4][16];
 extern uint8_t field[4*128];
 extern uint8_t buffer[4*128];
 extern uint8_t startscreen[4*128];
+extern uint8_t highscore[4*128];
 
 extern const uint8_t numbers[10*3];
 
