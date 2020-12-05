@@ -43,7 +43,16 @@ extern uint8_t field[4*128];
 extern uint8_t buffer[4*128];
 extern uint8_t startscreen[4*128];
 extern uint8_t highscore[4*128];
-
+ 
+extern const uint8_t a[4];
+extern const uint8_t b[4];
+extern const uint8_t c[4];
+extern const uint8_t d[4];
+extern const uint8_t e[4];
+extern const uint8_t f[4];
+extern const uint8_t g[4];
+extern const uint8_t h[4];
+extern const uint8_t i[4];
 extern const uint8_t numbers[10*3];
 
 /* Declare functions written by students.

@@ -283,6 +283,15 @@ void score(){
   for(i; i<512; i++){
     buffer[i] = highscore[i];
   }
+  int x = 3;
+  int j = 0;
+  for(x; x<11; x+3){
+      buffer[131+128*j] = numbers[x];
+      buffer[131+128*j+1] = numbers[x+1];
+      buffer[131+128*j+2] = numbers[x+2];
+      buffer[131+128*j+4] = 16;
+      j++;
+  }
 }
 
 

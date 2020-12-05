@@ -365,3 +365,34 @@ const uint8_t numbers[] = {
 	31, 21, 31, //8 Index 24-26
 	7, 5, 31,   //9 Index 27-29
 };
+
+const uint8_t a[] = {
+	30, 5, 5, 30
+};
+const uint8_t b[] = {
+	32, 21, 21, 10
+};
+const uint8_t c[] = {
+	14, 17, 17, 17
+};
+const uint8_t d[] = {
+	32, 17, 17, 14
+};
+const uint8_t e[] = {
+	32, 21, 21, 17
+};
+const uint8_t f[] = {
+	32, 5, 5, 1
+};
+const uint8_t g[] = {
+	14, 17, 21, 29
+};
+const uint8_t h[] = {
+	31, 4, 4, 31
+};
+const uint8_t i[] = {
+	0, 31, 0, 0,
+};
+
+
+
