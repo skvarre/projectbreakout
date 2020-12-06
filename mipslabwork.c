@@ -14,10 +14,6 @@
 #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
-/*
-int mytime = 0x5957;
-int prime = 1234567;
-char textstring[] = "text, more text, and even more text!";*/
 
 /* Initialized for counting timeouts used for ball speed */
 int timeoutcount = 0;
@@ -45,6 +41,7 @@ int score1 = 0;
 int score2 = 0;
 int score3 = 0;
 
+/* Ball struct */
 struct Ball {
   int x, y, b_dir, speed, score;
 };
@@ -61,10 +58,6 @@ struct Ball *ptr2 = &p2;
 int pos = 409;
 int pos2 = 480;
 
-/* Player 2 ball direction
-int b_dir2 = 0;
-int* p2 = &b_dir2;*/
-
 /* Player 1 coordinates */
 int px = 25;
 int py = 29;
@@ -73,14 +66,22 @@ int py = 29;
 int px2 = 96;
 int py2 = 29;
 
+/* Variables used for check_pixel function */
+int sx;
+int sy;
+
+/* Value of detected buttons */
 int btn_status;
 
+/* New direction according to paddle for player 1 */
 int n_dir;
 int* q = &n_dir;
 
+/* New direction according to paddle for player 2 */
 int n_dir2;
 int* q2 = &n_dir2;
 
+/* Array to be painted onto the screen */
 uint8_t buffer[4*128];
 
 /* Paints players and balls to screen using the field template */
@@ -104,6 +105,7 @@ void lit(struct Ball p1, struct Ball p2, int px, int py, int px2, int py2){
   }
 }
 
+/* Calculate new direction for ball according to player position */
 int paddle_hit(int x, int px){
   int c = px - x;
   if(c >= -1 && c <= 1){
@@ -118,10 +120,10 @@ int paddle_hit(int x, int px){
   return -1;
 }
 
+/* Kill a specified pixel on screen */
 void unlit(int x, int y){
   field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
 }
-
 void tickscore(int score){
   int dig1 = score/100; 
   int dig2 = (score/10) % 10; 
@@ -134,8 +136,10 @@ void tickscore(int score){
   }
 }
 
+/* Find and destroy (unlit) a block according to one of its 10 coordinates */
 void find_des(int x, int y, struct Ball* ptr){
-  if((y >= 2 && y <= 16) && (x >= 2 && x <= 53)){
+if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
+
     int i = 0;
     while(field[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
       unlit(x+i,y-1);
@@ -155,13 +159,36 @@ void find_des(int x, int y, struct Ball* ptr){
   }
 }
 
+/* Check if there is a pixel at this coordinate */
+int pixel_check(int x, int y, int b_dir){
+  int i = 0;
+  for(i; i < 2; i++){
+    if(b_dir == 0){
+      if(buffer[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
+        sx = x+i;
+        sy = y;
+        return 1;
+      }
+    }
+    if(b_dir == 1){
+      if(buffer[128*((y+i)>>3)+x] & (0x1 << ((y+i) % 8))){
+        sx = x;
+        sy = y+i;
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+/* Collision detection that according to the ball direction sends it a specified way */
 void coll_det(struct Ball* ptr, int* n_dir){
   switch(ptr->b_dir){
 
     // N
     case 0:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 1;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 1;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 1;break;}
+
     break;
 
     // S
@@ -169,38 +196,30 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8; break;}
 
-    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){ptr->b_dir = 0;break;}
-    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){ptr->b_dir = 0;break;}
+    if(pixel_check(ptr->x, ptr->y+2, 0)){ptr->b_dir = 0;break;}
     break;
 
     // W
     case 2:
-    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){ptr->b_dir = 3;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){ptr->b_dir = 3;break;}
+    if(pixel_check(ptr->x-1, ptr->y, 1)){ptr->b_dir = 3;break;}
     break;
 
     // E
     case 3:
-    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){ptr->b_dir = 2;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){ptr->b_dir = 2;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){ptr->b_dir = 2;break;}
     break;
 
     // NW
     case 4:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 6;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 5;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 5;break;}
     break;
 
     // NE
     case 5:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 7;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 7;break;}
-
-    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y,ptr);ptr->b_dir = 4;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1,ptr);ptr->b_dir = 4;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SW
@@ -208,11 +227,9 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 7;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y+1,ptr);ptr->b_dir = 7;break;}
 
-    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2,ptr);ptr->b_dir = 4;break;}
-    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2,ptr);ptr->b_dir = 4;break;}
+    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SE
@@ -220,11 +237,8 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y,ptr);ptr->b_dir = 6;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1,ptr);ptr->b_dir = 6;break;}
-
-    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2,ptr);ptr->b_dir = 5;break;}
-    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2,ptr);ptr->b_dir = 5;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
     break;
 
     default:
@@ -233,6 +247,7 @@ void coll_det(struct Ball* ptr, int* n_dir){
   }
 }
 
+/* Update ball coordinates according to current direction */
 void ball(struct Ball* ptr){
 
   switch(ptr->b_dir){
@@ -290,12 +305,14 @@ void ball(struct Ball* ptr){
 
 }
 
-/* Interrupt Service Routine */
+/* ISR that updates 100 times a second, used as a screen update */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
     if(state == 1){
       if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
+      if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
       coll_det(ptr1, q);
+      coll_det(ptr2, q2);
       lit(p1, p2, px, py, px2, py2);
     }
     IFS(0) &= ~0x100;
@@ -303,6 +320,7 @@ void user_isr( void ) {
     if(timeoutcount == ptr1->speed){ // 7 default starting speed
       if(state == 1){
         ball(ptr1);
+        ball(ptr2);
       }
       timeoutcount = 0;
     }
@@ -310,7 +328,7 @@ void user_isr( void ) {
   }
 }
 
-/* Lab-specific initialization goes here */
+/* Some initializations */
 void labinit( void )
 {
   volatile int* trise = (volatile int*) 0xbf886100;
@@ -333,6 +351,7 @@ void labinit( void )
   enable_interrupt();
 }
 
+/* Move players left or right */
 void moveleft( void ) {
   if(!(field[pos-1] & 0x20)) {
     px--;
@@ -340,6 +359,7 @@ void moveleft( void ) {
   }
 }
 
+/* Move players left or right */
 void moveright( void ) {
   if(!(field[pos+8] & 0x20)){
     px++;
@@ -347,6 +367,7 @@ void moveright( void ) {
   }
 }
 
+/* Move players left or right */
 void moveleftp2( void ) {
   if(!(field[pos2-1] & 0x20)) {
     px2--;
@@ -354,6 +375,7 @@ void moveleftp2( void ) {
   }
 }
 
+/* Move players left or right */
 void moverightp2( void ) {
   if(!(field[pos2+8] & 0x20)){
     px2++;
