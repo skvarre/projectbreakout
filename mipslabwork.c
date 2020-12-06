@@ -344,13 +344,14 @@ void updategameover(){
 
 void updategameoverpoints(){
   /*PLACEHOLDER */
-  int i, j = 0;
+  int i = 0;
+  int j = 0;
   int move = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
-      buffer[192+i+move] = numbers[0][i];
+      buffer[194+j+i*4] = numbers[0][j] << 3;
     }
-    move+=5;
+    j = 0;
   }
 }
 
