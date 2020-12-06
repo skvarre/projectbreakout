@@ -19,8 +19,22 @@ int mytime = 0x5957;
 int prime = 1234567;
 char textstring[] = "text, more text, and even more text!";*/
 int timeoutcount = 0;
+
+/* Keeps track of the menu pointer */
 int menupointer = 0;
+
+/* Keeps track of the current screen */
 int state = 0;
+
+/* Keep track of what letter is displaying in game over screen */
+int lettercounter = 0;
+int positioncounter = 0;
+int moveposition = 0;
+
+/* High score info */
+uint8_t first[3][4];
+uint8_t second[3][4];
+uint8_t third[3][4];
 
 /* Position of players in array*/
 int pos = 409;
@@ -327,18 +341,71 @@ void start(){
   buffer[(385+43*menupointer)+2] = 4;
 }
 
+void updateScore(){
+  int i = 0; 
+  int j = 0;
+  int end = 0;
+  for(i; i<3; i++){
+    if(i==2){end=128;}
+    for(j; j<3; j++){
+      buffer[131+128*i+j] = numbers[i+1][j] + end;
+    }
+    j = 0; 
+    buffer[131+128*i+4] = 16 + end;
+  }
+}
+
 void score(){
   int i = 0;
   for(i; i<512; i++){
     buffer[i] = highscore[i];
   }
+  updateScore();
 }
+
+void updategameover(){
+  uint8_t playername[3][4];
+  int i = 0;
+  for(i; i<4; i++){
+    buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
+    playername[positioncounter][i] = letters[lettercounter][i];
+  }
+}
+
+void updategameoverpoints(){
+  /*PLACEHOLDER */
+  int i = 0;
+  int j = 0;
+  int move = 0;
+  for(i; i<3; i++){
+    for(j; j<3; j++){
+      buffer[194+j+i*4] = numbers[0][j] << 3;
+    }
+    j = 0;
+  }
+}
+
+void gameover(){
+  state = 4;
+  int i = 0; 
+  for(i; i<512; i++){
+    buffer[i] = gameoverscreen[i];
+  }
+  updategameover();
+  updategameoverpoints();
+}
+
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
-
+  /**
+   * STATE 0: MAIN TITLE SCREEN
+   * STATE 1: P1 GAME MODE
+   * STATE 2: P2 GAME MODE
+   * STATE 3: HIGH SCORE
+   * STATE 4: GAME OVER SCREEN
+   **/
   switch(state){
-
     case 0:
     if(getbtns() == 2){
       if(menupointer != 2){
@@ -392,7 +459,33 @@ void labwork( void ) {
         state = 0;
         start();
         quicksleep(1000000);
-
+      }
+    break;
+    case 4: /* GAME OVER*/
+      btn_status = getbtns();
+      if(btn_status & 0x4){
+        if(lettercounter == 0){lettercounter = 9;}
+        lettercounter--;
+        updategameover();
+        quicksleep(1000000);
+      }
+      if(btn_status & 0x2){
+        if(lettercounter == 8){lettercounter = -1;}
+        lettercounter++;
+        updategameover();
+        quicksleep(1000000);
+      }
+      if(btn_status & 0x1){
+        positioncounter++;
+        if(positioncounter < 3){moveposition += 5;}
+        if(positioncounter == 3){ 
+          /* Set everything to zero and enter main screen*/
+          positioncounter = 0; 
+          moveposition = 0;
+          lettercounter = 0;
+        }
+        updategameover();
+        quicksleep(1000000);
       }
     break;
     default:

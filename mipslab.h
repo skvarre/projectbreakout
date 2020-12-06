@@ -43,8 +43,10 @@ extern uint8_t field[4*128];
 extern uint8_t buffer[4*128];
 extern uint8_t startscreen[4*128];
 extern uint8_t highscore[4*128];
-
-extern const uint8_t numbers[10*3];
+extern uint8_t gameoverscreen[4*128];
+ 
+extern const uint8_t numbers[10][3];
+extern const uint8_t letters[9][4];
 
 /* Declare functions written by students.
    Note: Since we declare these functions here,
