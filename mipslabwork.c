@@ -33,10 +33,16 @@ int lettercounter = 0;
 int positioncounter = 0;
 int moveposition = 0;
 
-/* High score info */
+/* High score pixels */
 uint8_t first[3][4];
 uint8_t second[3][4];
 uint8_t third[3][4];
+
+/* High score */
+int playerscore = 0; 
+int score1 = 0;
+int score2 = 0;
+int score3 = 0;
 
 struct Ball {
   int x, y, b_dir, speed;
@@ -350,17 +356,21 @@ void start(){
   buffer[(385+43*menupointer)+2] = 4;
 }
 
-void updateScore(){
+void updatescore(){
+  int position = 0;
+  //Validate that the player should be listed in High score
+  if(playerscore < score1){position++;}else{score1=playerscore;}
+  if(playerscore < score2){position++;}else{score2=playerscore;}
+  if(playerscore < score3){return;}else{score3=playerscore;}
+  //Show name and score 
   int i = 0;
   int j = 0;
-  int end = 0;
   for(i; i<3; i++){
-    if(i==2){end=128;}
-    for(j; j<3; j++){
-      buffer[131+128*i+j] = numbers[i+1][j] + end;
+    for(j; j<4; j++){
+      highscore[138+128*position+j+i*5] = player1[i][j];
+      if(position==2){highscore[138+128*position+j+i*5] = highscore[138+128*position+j+i*5]+128;}
     }
-    j = 0;
-    buffer[131+128*i+4] = 16 + end;
+    j=0;
   }
 }
 
@@ -369,15 +379,24 @@ void score(){
   for(i; i<512; i++){
     buffer[i] = highscore[i];
   }
-  updateScore();
+  i = 0; 
+  int j = 0;
+  int end = 0;
+  for(i; i<3; i++){
+    if(i==2){end=128;}
+    for(j; j<3; j++){
+      buffer[131+128*i+j] = numbers[i+1][j] + end;
+    }
+    j = 0; 
+    buffer[131+128*i+4] = 16 + end;
+  }
 }
 
 void updategameover(){
-  uint8_t playername[3][4];
   int i = 0;
   for(i; i<4; i++){
     buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
-    playername[positioncounter][i] = letters[lettercounter][i];
+    player1[positioncounter][i] = letters[lettercounter][i];
   }
 }
 
@@ -385,7 +404,6 @@ void updategameoverpoints(){
   /*PLACEHOLDER */
   int i = 0;
   int j = 0;
-  int move = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
       buffer[194+j+i*4] = numbers[0][j] << 3;
@@ -492,9 +510,14 @@ void labwork( void ) {
           positioncounter = 0;
           moveposition = 0;
           lettercounter = 0;
+          state = 0; 
+          start();
+          updatescore();
+          quicksleep(1000000);
+        }else{
+          updategameover();
+          quicksleep(1000000);
         }
-        updategameover();
-        quicksleep(1000000);
       }
     break;
     default:
