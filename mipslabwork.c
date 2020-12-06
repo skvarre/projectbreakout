@@ -36,7 +36,6 @@ uint8_t second[3][3];
 uint8_t third[3][3];
 
 /* High score */
-int playerscore = 0; 
 int score1 = 0;
 int score2 = 0;
 int score3 = 0;
@@ -132,7 +131,7 @@ void tickscore(int score){
   int i = 0;
   int j = 0;
   for(i; i<3; i++){
-    playerscore[i][j] = numbers[score][j];
+    //playerscore[i][j] = numbers[score][j];
   }
 }
 
