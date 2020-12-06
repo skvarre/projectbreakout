@@ -34,9 +34,10 @@ int positioncounter = 0;
 int moveposition = 0;
 
 /* High score pixels */
-uint8_t first[3][4];
-uint8_t second[3][4];
-uint8_t third[3][4];
+uint8_t playerscore[3][3];
+uint8_t first[3][3];
+uint8_t second[3][3];
+uint8_t third[3][3];
 
 /* High score */
 int playerscore = 0; 
@@ -45,12 +46,12 @@ int score2 = 0;
 int score3 = 0;
 
 struct Ball {
-  int x, y, b_dir, speed;
+  int x, y, b_dir, speed, score;
 };
 
 /* Structs holding the x, y and direction vales of both player balls */
-struct Ball p1 = { 28, 21, 0, 7 };
-struct Ball p2 = { 99, 21, 0, 7 };
+struct Ball p1 = { 28, 21, 0, 7, 0 };
+struct Ball p2 = { 99, 21, 0, 7, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -121,7 +122,19 @@ void unlit(int x, int y){
   field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
 }
 
-void find_des(int x, int y){
+void tickscore(int score){
+  int dig1 = score/100; 
+  int dig2 = (score/10) % 10; 
+  int dig3 = score % 10;
+
+  int i = 0;
+  int j = 0;
+  for(i; i<3; i++){
+    playerscore[i][j] = numbers[score][j];
+  }
+}
+
+void find_des(int x, int y, struct Ball* ptr){
   if((y >= 2 && y <= 16) && (x >= 2 && x <= 53)){
     int i = 0;
     while(field[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
@@ -137,6 +150,8 @@ void find_des(int x, int y){
       unlit(x-i,y+1);
       i++;
     }
+    ptr->score++;
+    tickscore(ptr->score);
   }
 }
 
@@ -145,8 +160,8 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // N
     case 0:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1);ptr->b_dir = 1;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1);ptr->b_dir = 1;break;}
+    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 1;break;}
+    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 1;break;}
     break;
 
     // S
@@ -172,20 +187,20 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // NW
     case 4:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1);ptr->b_dir = 6;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1);ptr->b_dir = 6;break;}
+    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 6;break;}
+    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 6;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y);ptr->b_dir = 5;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y);ptr->b_dir = 5;break;}
+    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 5;break;}
+    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 5;break;}
     break;
 
     // NE
     case 5:
-    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1);ptr->b_dir = 7;break;}
-    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1);ptr->b_dir = 7;break;}
+    if(buffer[128*((ptr->y-1)>>3)+ptr->x] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x,ptr->y-1,ptr);ptr->b_dir = 7;break;}
+    if(buffer[128*((ptr->y-1)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y-1) % 8))){find_des(ptr->x+1,ptr->y-1,ptr);ptr->b_dir = 7;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y);ptr->b_dir = 4;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1);ptr->b_dir = 4;break;}
+    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y,ptr);ptr->b_dir = 4;break;}
+    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SW
@@ -193,11 +208,11 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y);ptr->b_dir = 7;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y+1);ptr->b_dir = 7;break;}
+    if(buffer[128*(ptr->y>>3)+(ptr->x-1)] & (0x1 << (ptr->y % 8))){find_des(ptr->x-1,ptr->y,ptr);ptr->b_dir = 7;break;}
+    if(buffer[128*((ptr->y+1)>>3)+(ptr->x-1)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x-1,ptr->y+1,ptr);ptr->b_dir = 7;break;}
 
-    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2);ptr->b_dir = 4;break;}
-    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2);ptr->b_dir = 4;break;}
+    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2,ptr);ptr->b_dir = 4;break;}
+    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SE
@@ -205,11 +220,11 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y);ptr->b_dir = 6;break;}
-    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1);ptr->b_dir = 6;break;}
+    if(buffer[128*(ptr->y>>3)+(ptr->x+2)] & (0x1 << (ptr->y % 8))){find_des(ptr->x+2,ptr->y,ptr);ptr->b_dir = 6;break;}
+    if(buffer[128*((ptr->y+1)>>3)+(ptr->x+2)] & (0x1 << ((ptr->y+1) % 8))){find_des(ptr->x+2,ptr->y+1,ptr);ptr->b_dir = 6;break;}
 
-    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2);ptr->b_dir = 5;break;}
-    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2);ptr->b_dir = 5;break;}
+    if(buffer[128*((ptr->y+2)>>3)+ptr->x] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x,ptr->y+2,ptr);ptr->b_dir = 5;break;}
+    if(buffer[128*((ptr->y+2)>>3)+(ptr->x+1)] & (0x1 << ((ptr->y+2) % 8))){find_des(ptr->x+1,ptr->y+2,ptr);ptr->b_dir = 5;break;}
     break;
 
     default:
