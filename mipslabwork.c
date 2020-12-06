@@ -30,7 +30,7 @@ int pos2 = 480;
 int x = 28;
 int y = 18;
 
-int b_dir = 4;
+int b_dir = 0;
 int* p = &b_dir;
 
 /* Player 1 coordinates */
@@ -81,13 +81,43 @@ int paddle_hit(int x, int px){
   return -1;
 }
 
+void unlit(int x, int y){
+  field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
+}
+
+void find_des(int x, int y, int* p){
+  if((y >= 2 && y <= 16) && (x >= 2 && x <= 53)){
+    int level;
+    if(*p == 0 || *p == 4 || *p == 5){
+      level = -1;
+    }
+    if(*p == 6 || *p == 7){
+      level = 1;
+    }
+    int i = 0;
+    while(field[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
+      unlit(x+i,y-level);
+      unlit(x+i,y);
+      unlit(x+i,y+level);
+      i++;
+    }
+    i = 1;
+    while(field[128*(y>>3)+(x-i)] & (0x1 << (y % 8))){
+      unlit(x-i,y-level);
+      unlit(x-i,y);
+      unlit(x-i,y+level);
+      i++;
+    }
+  }
+}
+
 void coll_det(int x, int y, int* p, int* n_dir){
   switch(*p){
 
     // N
     case 0:
-    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 1;break;}
-    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 1;break;}
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){find_des(x,y-1,p);b_dir = 1;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){find_des(x+1,y-1,p);b_dir = 1;break;}
     break;
 
     // S
@@ -113,20 +143,20 @@ void coll_det(int x, int y, int* p, int* n_dir){
 
     // NW
     case 4:
-    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 6;break;}
-    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 6;break;}
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){find_des(x,y-1,p);b_dir = 6;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){find_des(x+1,y-1,p);b_dir = 6;break;}
 
-    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 5;break;}
-    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 5;break;}
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){find_des(x-1,y,p);b_dir = 5;break;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){find_des(x-1,y,p);b_dir = 5;break;}
     break;
 
     // NE
     case 5:
-    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){b_dir = 7;break;}
-    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){b_dir = 7;break;}
+    if(buffer[128*((y-1)>>3)+x] & (0x1 << ((y-1) % 8))){find_des(x,y-1,p);b_dir = 7;break;}
+    if(buffer[128*((y-1)>>3)+(x+1)] & (0x1 << ((y-1) % 8))){find_des(x+1,y-1,p);b_dir = 7;break;}
 
-    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 4;break;}
-    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 4;break;}
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){find_des(x+2,y,p);b_dir = 4;break;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){find_des(x+2,y+1,p);b_dir = 4;break;}
     break;
 
     // SW
@@ -134,11 +164,11 @@ void coll_det(int x, int y, int* p, int* n_dir){
     if(y == 27 && *n_dir != -1){b_dir = *n_dir;break;}
     if(y == 32){b_dir = 8;break;}
 
-    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){b_dir = 7;break;}
-    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){b_dir = 7;break;}
+    if(buffer[128*(y>>3)+(x-1)] & (0x1 << (y % 8))){find_des(x-1,y,p);b_dir = 7;break;}
+    if(buffer[128*((y+1)>>3)+(x-1)] & (0x1 << ((y+1) % 8))){find_des(x-1,y+1,p);b_dir = 7;break;}
 
-    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 4;break;}
-    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 4;break;}
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){find_des(x,y+2,p);b_dir = 4;break;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){find_des(x+1,y+2,p);b_dir = 4;break;}
     break;
 
     // SE
@@ -146,11 +176,11 @@ void coll_det(int x, int y, int* p, int* n_dir){
     if(y == 27 && *n_dir != -1){b_dir = *n_dir;break;}
     if(y == 32){b_dir = 8;break;}
 
-    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){b_dir = 6;break;}
-    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){b_dir = 6;break;}
+    if(buffer[128*(y>>3)+(x+2)] & (0x1 << (y % 8))){find_des(x+2,y,p);b_dir = 6;break;}
+    if(buffer[128*((y+1)>>3)+(x+2)] & (0x1 << ((y+1) % 8))){find_des(x+2,y+1,p);b_dir = 6;break;}
 
-    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){b_dir = 5;break;}
-    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){b_dir = 5;break;}
+    if(buffer[128*((y+2)>>3)+x] & (0x1 << ((y+2) % 8))){find_des(x,y+2,p);b_dir = 5;break;}
+    if(buffer[128*((y+2)>>3)+(x+1)] & (0x1 << ((y+2) % 8))){find_des(x+1,y+2,p);b_dir = 5;break;}
     break;
 
     default:
@@ -226,7 +256,7 @@ void user_isr( void ) {
     }
     IFS(0) &= ~0x100;
     timeoutcount++;
-    if(timeoutcount == 10){
+    if(timeoutcount == 7){ // 7 default starting speed
       if(state == 1){
         ball(b_dir);
       }
