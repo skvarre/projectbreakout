@@ -126,7 +126,8 @@ void display_init(void) {
 	spi_send_recv(0x20);
 
 	spi_send_recv(0xAF);
-  start();
+  //start();
+  gameover();
 }
 
 void display_string(int line, char *s) {
