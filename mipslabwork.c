@@ -29,19 +29,26 @@ int lettercounter = 0;
 int positioncounter = 0;
 int moveposition = 0;
 
-/* High score info */
-uint8_t first[3][4];
-uint8_t second[3][4];
-uint8_t third[3][4];
+/* High score pixels */
+uint8_t playerscore[3][3];
+uint8_t first[3][3];
+uint8_t second[3][3];
+uint8_t third[3][3];
+
+/* High score */
+int playerscore = 0; 
+int score1 = 0;
+int score2 = 0;
+int score3 = 0;
 
 /* Ball struct */
 struct Ball {
-  int x, y, b_dir, speed;
+  int x, y, b_dir, speed, score;
 };
 
 /* Structs holding the x, y and direction vales of both player balls */
-struct Ball p1 = { 28, 21, 0, 7 };
-struct Ball p2 = { 99, 21, 0, 7 };
+struct Ball p1 = { 28, 21, 0, 7, 0 };
+struct Ball p2 = { 99, 21, 0, 7, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -117,10 +124,22 @@ int paddle_hit(int x, int px){
 void unlit(int x, int y){
   field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
 }
+void tickscore(int score){
+  int dig1 = score/100; 
+  int dig2 = (score/10) % 10; 
+  int dig3 = score % 10;
+
+  int i = 0;
+  int j = 0;
+  for(i; i<3; i++){
+    playerscore[i][j] = numbers[score][j];
+  }
+}
 
 /* Find and destroy (unlit) a block according to one of its 10 coordinates */
-void find_des(int x, int y){
-  if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
+void find_des(int x, int y, struct Ball* ptr){
+if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
+
     int i = 0;
     while(field[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
       unlit(x+i,y-1);
@@ -135,6 +154,8 @@ void find_des(int x, int y){
       unlit(x-i,y+1);
       i++;
     }
+    ptr->score++;
+    tickscore(ptr->score);
   }
 }
 
@@ -166,7 +187,8 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // N
     case 0:
-    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy);ptr->b_dir = 1;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 1;break;}
+
     break;
 
     // S
@@ -189,14 +211,15 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // NW
     case 4:
-    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy);ptr->b_dir = 6;break;}
-    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy);ptr->b_dir = 5;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+
     break;
 
     // NE
     case 5:
-    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy);ptr->b_dir = 7;break;}
-    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy);ptr->b_dir = 4;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SW
@@ -204,8 +227,9 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy);ptr->b_dir = 7;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy);ptr->b_dir = 4;break;}
+
+    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     break;
 
     // SE
@@ -213,8 +237,8 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy);ptr->b_dir = 6;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy);ptr->b_dir = 5;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
     break;
 
     default:
@@ -369,17 +393,21 @@ void start(){
   buffer[(385+43*menupointer)+2] = 4;
 }
 
-void updateScore(){
+void updatescore(){
+  int position = 0;
+  //Validate that the player should be listed in High score
+  if(playerscore < score1){position++;}else{score1=playerscore;}
+  if(playerscore < score2){position++;}else{score2=playerscore;}
+  if(playerscore < score3){return;}else{score3=playerscore;}
+  //Show name and score 
   int i = 0;
   int j = 0;
-  int end = 0;
   for(i; i<3; i++){
-    if(i==2){end=128;}
-    for(j; j<3; j++){
-      buffer[131+128*i+j] = numbers[i+1][j] + end;
+    for(j; j<4; j++){
+      highscore[138+128*position+j+i*5] = player1[i][j];
+      if(position==2){highscore[138+128*position+j+i*5] = highscore[138+128*position+j+i*5]+128;}
     }
-    j = 0;
-    buffer[131+128*i+4] = 16 + end;
+    j=0;
   }
 }
 
@@ -388,15 +416,24 @@ void score(){
   for(i; i<512; i++){
     buffer[i] = highscore[i];
   }
-  updateScore();
+  i = 0; 
+  int j = 0;
+  int end = 0;
+  for(i; i<3; i++){
+    if(i==2){end=128;}
+    for(j; j<3; j++){
+      buffer[131+128*i+j] = numbers[i+1][j] + end;
+    }
+    j = 0; 
+    buffer[131+128*i+4] = 16 + end;
+  }
 }
 
 void updategameover(){
-  uint8_t playername[3][4];
   int i = 0;
   for(i; i<4; i++){
     buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
-    playername[positioncounter][i] = letters[lettercounter][i];
+    player1[positioncounter][i] = letters[lettercounter][i];
   }
 }
 
@@ -404,7 +441,6 @@ void updategameoverpoints(){
   /*PLACEHOLDER */
   int i = 0;
   int j = 0;
-  int move = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
       buffer[194+j+i*4] = numbers[0][j] << 3;
@@ -511,9 +547,14 @@ void labwork( void ) {
           positioncounter = 0;
           moveposition = 0;
           lettercounter = 0;
+          state = 0; 
+          start();
+          updatescore();
+          quicksleep(1000000);
+        }else{
+          updategameover();
+          quicksleep(1000000);
         }
-        updategameover();
-        quicksleep(1000000);
       }
     break;
     default:
