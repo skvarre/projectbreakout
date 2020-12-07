@@ -29,7 +29,7 @@ int state = 0;
 int lettercounter = 0;
 int positioncounter = 0;
 int moveposition = 0;
-int oneplayer = 0; 
+int oneplayer = 0;
 int twoplayer = 0;
 
 /* High score pixels */
@@ -224,7 +224,7 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // NW 22.5 degrees
     case 2:
-    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr-> == 125)){ptr->b_dir = 5;}
+    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr->x == 125)){ptr->b_dir = 5;}
     if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
     if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
     //if(pixel_check(ptr->x-2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;} Alternative solution for collision bug
@@ -232,7 +232,7 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // NE 22.5 degrees
     case 3:
-    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr-> == 125)){ptr->b_dir = 4;}
+    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr->x == 125)){ptr->b_dir = 4;}
     if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
     if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     //if(pixel_check(ptr->x+3, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;} Alternative solution for collision bug
@@ -288,13 +288,13 @@ void reset( void ){
   ptr1->y=21;
   ptr1->b_dir=0;
   ptr1->speed=7;
-  
+
 
   ptr2->x=99;
   ptr2->y=21;
   ptr2->b_dir=0;
   ptr2->speed=7;
- 
+
 
   pos = 409;
   pos2 = 480;
@@ -574,7 +574,7 @@ void updateletter(){
     moveposition = 0;
     lettercounter = 0;
     //If it's one player mode, we're done - else run algorithm again.
-    if(!twoplayer){ 
+    if(!twoplayer){
       state = 0;
       start();
       updatescore(ptr1->score, player1, player1score);
@@ -583,7 +583,7 @@ void updateletter(){
       ptr2->score=0;
       quicksleep(1000000);
     }else{
-      oneplayer=0; 
+      oneplayer=0;
       twoplayer = 0;
       updategameovername();
       quicksleep(1000000);
@@ -603,7 +603,7 @@ void updategameovername(){
     }else if(!oneplayer && !twoplayer){
       buffer[291+i+moveposition] = letters[lettercounter][i] << 3;
       player2[positioncounter][i] = letters[lettercounter][i];
-    }  
+    }
   }
 }
 
@@ -647,7 +647,7 @@ void gameover(){
   }
   updategameovername();
   updategameoverpoints();
-  state=4; 
+  state=4;
 }
 
 /* A simple AI that follows the ball according to x coodrinates */
