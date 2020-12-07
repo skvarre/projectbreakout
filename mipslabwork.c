@@ -352,8 +352,18 @@ void ball(struct Ball* ptr){
     break;
 
     case 8:
-    gameover();
-    reset();
+    switch(state){
+      case 1:
+        if(ptr1->b_dir==8){
+          gameover();
+          reset();
+        }
+      case 2:
+        if(ptr1->b_dir == 8 && ptr2->b_dir == 8){
+          gameover();
+          reset();
+        }
+    }
     break;
 
     default:
