@@ -300,7 +300,7 @@ void ball(struct Ball* ptr){
     break;
 
     case 8:
-    //gameover();
+    gameover();
     break;
 
     default:
@@ -426,13 +426,18 @@ void updategameoverpoints(){
   int j = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
-      buffer[194+j+i*4] = numbers[0][j] << 3;
+      buffer[194+j+i*4] = player1score[i][j] << 3;
     }
     j = 0;
   }
 }
 
 void gameover(){
+  if(state == 2){
+    //ALLOW PLAYER TWO TO INPUT NAME
+    
+  }
+
   state = 4;
   int i = 0;
   for(i; i<512; i++){
