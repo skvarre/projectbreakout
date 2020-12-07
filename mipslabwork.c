@@ -53,7 +53,7 @@ struct Ball {
 
 /* Structs holding the x, y and direction vales of both player balls */
 struct Ball p1 = { 28, 21, 0, 7, 0 };
-struct Ball p2 = { 85, 27, 2, 20, 0 };
+struct Ball p2 = { 99, 21, 0, 7, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
