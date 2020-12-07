@@ -336,6 +336,62 @@ void reset( void ){
   py2 = 29;
 }
 
+void updategameovername(){
+  int i = 0;
+  for(i; i<4; i++){
+    if(oneplayer || twoplayer){
+      buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
+      player1[positioncounter][i] = letters[lettercounter][i];
+    }else if(!oneplayer && !twoplayer){
+      buffer[291+i+moveposition] = letters[lettercounter][i] << 3;
+      player2[positioncounter][i] = letters[lettercounter][i];
+    }
+  }
+}
+
+void updategameoverpoints(){
+  int i = 0;
+  int j = 0;
+  for(i; i<3; i++){
+    for(j; j<3; j++){
+      buffer[194+j+i*4] = player1score[i][j] << 3;
+      if(state==2){
+        buffer[322+j+i*4] = player2score[i][j] << 3;
+      }
+    }
+    j = 0;
+  }
+}
+
+void gameover(){
+  int i = 0;
+  //Paint gameover
+  for(i; i<512; i++){
+    if(state==1){
+      buffer[i] = gameoverscreen1[i];
+    }else if(state==2){
+      buffer[i] = gameoverscreen2[i];
+    }
+  }
+  if(state==1){
+    oneplayer = 1;
+    //ASSIGN BOTNAME TO PLAYER2
+    int i = 0;
+    int j = 0;
+    for(i; i<3; i++){
+      for(j; j<4; j++){
+        player2[i][j] = bot[i][j];
+      }
+      j = 0;
+    }
+  }else{
+    twoplayer = 1;
+  }
+  updategameovername();
+  updategameoverpoints();
+  state=4;
+}
+
 /* Update ball coordinates according to current direction */
 void ball(struct Ball* ptr){
 
@@ -632,62 +688,6 @@ void updateletter(){
     updategameovername();
     quicksleep(1000000);
   }
-}
-
-void updategameovername(){
-  int i = 0;
-  for(i; i<4; i++){
-    if(oneplayer || twoplayer){
-      buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
-      player1[positioncounter][i] = letters[lettercounter][i];
-    }else if(!oneplayer && !twoplayer){
-      buffer[291+i+moveposition] = letters[lettercounter][i] << 3;
-      player2[positioncounter][i] = letters[lettercounter][i];
-    }
-  }
-}
-
-void updategameoverpoints(){
-  int i = 0;
-  int j = 0;
-  for(i; i<3; i++){
-    for(j; j<3; j++){
-      buffer[194+j+i*4] = player1score[i][j] << 3;
-      if(state==2){
-        buffer[322+j+i*4] = player2score[i][j] << 3;
-      }
-    }
-    j = 0;
-  }
-}
-
-void gameover(){
-  int i = 0;
-  //Paint gameover
-  for(i; i<512; i++){
-    if(state==1){
-      buffer[i] = gameoverscreen1[i];
-    }else if(state==2){
-      buffer[i] = gameoverscreen2[i];
-    }
-  }
-  if(state==1){
-    oneplayer = 1;
-    //ASSIGN BOTNAME TO PLAYER2
-    int i = 0;
-    int j = 0;
-    for(i; i<3; i++){
-      for(j; j<4; j++){
-        player2[i][j] = bot[i][j];
-      }
-      j = 0;
-    }
-  }else{
-    twoplayer = 1;
-  }
-  updategameovername();
-  updategameoverpoints();
-  state=4;
 }
 
 /* A simple AI that follows the ball according to x coodrinates */
