@@ -478,15 +478,6 @@ void updategameoverpoints(){
 }
 
 void gameover(){
-<<<<<<< HEAD
-=======
-  if(state == 2){
-    //ALLOW PLAYER TWO TO INPUT NAME
-
-  }
-
-  state = 4;
->>>>>>> 2406252d437d946a7d791dca33ba75686cdfadee
   int i = 0;
   for(i; i<512; i++){
     if(state==1){
