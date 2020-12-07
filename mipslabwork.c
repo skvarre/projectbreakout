@@ -35,9 +35,7 @@ int twoplayer = 0;
 /* High score pixels */
 uint8_t player1score[3][3];
 uint8_t player2score[3][3];
-uint8_t first[3][3];
-uint8_t second[3][3];
-uint8_t third[3][3];
+
 
 /* Player names */
 uint8_t player1[3][4];
@@ -286,13 +284,13 @@ void reset( void ){
   ptr1->y=21;
   ptr1->b_dir=0;
   ptr1->speed=7;
-  ptr1->score=0;
+  
 
   ptr2->x=99;
   ptr2->y=21;
   ptr2->b_dir=0;
   ptr2->speed=7;
-  ptr2->score=0;
+ 
 
   pos = 409;
   pos2 = 480;
@@ -427,21 +425,120 @@ void start(){
   buffer[(385+43*menupointer)+2] = 4;
 }
 
-void updatescore(){
-  int position = 0;
-  //Validate that the player should be listed in High score
-  //if(playerscore < score1){position++;}else{score1=playerscore;}
-  //if(playerscore < score2){position++;}else{score2=playerscore;}
-  //if(playerscore < score3){return;}else{score3=playerscore;}
-  //Show name and score
+void printhighscoreinfo(int position, uint8_t player[3][4], uint8_t score[3][3]){
+   //Show name and score
   int i = 0;
   int j = 0;
   for(i; i<3; i++){
     for(j; j<4; j++){
-      highscore[138+128*position+j+i*5] = player1[i][j];
+      highscore[138+128*position+j+i*5] = player[i][j];
       if(position==2){highscore[138+128*position+j+i*5] = highscore[138+128*position+j+i*5]+128;}
     }
     j=0;
+  }
+  int k = 0;
+  int l = 0;
+  for(k; k<3; k++){
+    for(l; l<3; l++){
+      highscore[168+128*position+l+k*4] = score[k][l];
+      if(position==2){highscore[168+128*position+k+l*4] = highscore[168+128*position+k+l*4]+128;}
+    }
+    l=0;
+  }
+}
+
+void updatescore(int playerscore, uint8_t player[3][4], uint8_t score[3][3]){
+  int position = 0;
+  int i = 0;
+  int j = 0;
+  //Validate that the player should be listed in High score
+  if(playerscore <= score1){
+    position++;
+  }else{
+    //REARRANGE SCORES
+    score3 = score2;
+    score2 = score1;
+    score1=playerscore;
+    //REARRANGE PIXEL REPRESENTATION OF SCORE
+     for(i; i<3; i++){
+      for(j; j<3; j++){
+        thirdscore[i][j] = secondscore[i][j];
+        secondscore[i][j] = firstscore[i][j];
+        firstscore[i][j] = score[i][j];
+      }
+      j=0;
+    }
+    i=0;
+    //REARRANGE PIXEL REPRESENTATION OF NAME
+    for(i; i<3; i++){
+      for(j; j<4; j++){
+        thirdplayer[i][j] = secondplayer[i][j];
+        secondplayer[i][j] = firstplayer[i][j];
+        firstplayer[i][j] = player[i][j];
+      }
+      j = 0;
+    }
+    //PRINT NEW HIGH SCORE LIST
+    printhighscoreinfo(position, player, score);
+    printhighscoreinfo(position+1, secondplayer, secondscore);
+    printhighscoreinfo(position+2, thirdplayer, thirdscore);
+    return;
+  }
+
+  if(playerscore <= score2){
+    position++;
+  }else{
+    i = 0;
+    //REARRANGE SCORES
+    score3 = score2;
+    score2 = playerscore;
+    //REARRANGE PIXEL REPRESENTATION OF SCORE
+     for(i; i<3; i++){
+      for(j; j<3; j++){
+        thirdscore[i][j] = secondscore[i][j];
+        secondscore[i][j] = score[i][j];
+      }
+      j=0;
+    }
+    i=0;
+    //REARRANGE PIXEL REPRESENTATION OF NAME
+      for(i; i<3; i++){
+      for(j; j<4; j++){
+        thirdplayer[i][j] = secondplayer[i][j];
+        secondplayer[i][j] = player[i][j];
+      }
+      j = 0;
+    }
+    //PRINT NEW HIGH SCORE LIST
+    printhighscoreinfo(position, player, score);
+    printhighscoreinfo(position+1, thirdplayer, thirdscore);
+    return;
+  }
+  if(playerscore <= score3){
+    return;
+  }else{
+    i=0;
+    //REARRANGE SCORES
+    score3 = playerscore;
+    //REARRANGE PIXEL REPRESENTATION OF SCORE
+    for(i; i<3; i++){
+      for(j; j<3; j++){
+        thirdscore[i][j] = score[i][j];
+      }
+      j=0;
+    }
+    i=0;
+    //REARRANGE PIXEL REPRESENTATION OF NAME
+    //REARRANGE PIXEL REPRESENTATION OF NAME
+      for(i; i<3; i++){
+        for(j; j<4; j++){
+          thirdplayer[i][j] = player[i][j];
+        }
+      j = 0;
+    }
+    //PRINT NEW HIGH SCORE LIST
+    printhighscoreinfo(position, player, score);
+    return;
   }
 }
 
@@ -476,7 +573,10 @@ void updateletter(){
     if(!twoplayer){ 
       state = 0;
       start();
-      updatescore();
+      updatescore(ptr1->score, player1, player1score);
+      updatescore(ptr2->score, player2, player2score);
+      ptr1->score=0;
+      ptr2->score=0;
       quicksleep(1000000);
     }else{
       oneplayer=0; 
@@ -527,8 +627,20 @@ void gameover(){
       buffer[i] = gameoverscreen2[i];
     }
   }
-  if(state==1){oneplayer = 1;}
-  else{twoplayer = 1;}
+  if(state==1){
+    oneplayer = 1;
+    //ASSIGN BOTNAME TO PLAYER2
+    int i = 0;
+    int j = 0;
+    for(i; i<3; i++){
+      for(j; j<4; j++){
+        player2[i][j] = bot[i][j];
+      }
+      j = 0;
+    }
+  }else{
+    twoplayer = 1;
+  }
   updategameovername();
   updategameoverpoints();
   state=4; 

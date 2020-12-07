@@ -48,6 +48,14 @@ extern uint8_t gameoverscreen2[4*128];
 extern uint8_t player1[3][4];
 extern uint8_t s_field[4*128];
 
+extern uint8_t firstscore[3][3];
+extern uint8_t secondscore[3][3];
+extern uint8_t thirdscore[3][3];
+
+extern uint8_t firstplayer[3][4];
+extern uint8_t secondplayer[3][4];
+extern uint8_t thirdplayer[3][4];
+extern uint8_t bot[3][4];
 
 extern const uint8_t numbers[10][3];
 extern const uint8_t letters[9][4];
