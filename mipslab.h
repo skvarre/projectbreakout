@@ -58,7 +58,7 @@ extern uint8_t thirdplayer[3][4];
 extern uint8_t bot[3][4];
 
 extern const uint8_t numbers[10][3];
-extern const uint8_t letters[9][4];
+extern const uint8_t letters[25][4];
 
 /* Declare functions written by students.
    Note: Since we declare these functions here,
