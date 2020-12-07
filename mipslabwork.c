@@ -30,7 +30,8 @@ int positioncounter = 0;
 int moveposition = 0;
 
 /* High score pixels */
-uint8_t playerscore[3][3];
+uint8_t player1score[3][3];
+uint8_t player2score[3][3];
 uint8_t first[3][3];
 uint8_t second[3][3];
 uint8_t third[3][3];
@@ -123,22 +124,35 @@ int paddle_hit(int x, int px){
 void unlit(int x, int y){
   field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
 }
-void tickscore(int score){
-  int dig1 = score/100;
-  int dig2 = (score/10) % 10;
-  int dig3 = score % 10;
 
-  int i = 0;
+
+void tickscore(int score, struct Ball* ptr){
+  int dig1 = score/100; 
+  int dig2 = (score/10) % 10; 
+  int dig3 = score % 10;
+  int currentdig[3] = {dig1, dig2, dig3};
+  int i = 0;  
   int j = 0;
   for(i; i<3; i++){
-    //playerscore[i][j] = numbers[score][j];
+    for(j; j<3; j++){
+      //Tick score depending on who is playing. 
+      if(ptr == &p1){
+        player1score[i][j] = numbers[currentdig[i]][j];
+        field[186+j+i*4] = numbers[currentdig[i]][j];
+      }else if(ptr == &p2){
+        player2score[i][j] = numbers[currentdig[i]][j];
+        field[443+j+i*4] = numbers[currentdig[i]][j];
+      }
+    }
+    j=0;
   }
 }
 
 /* Find and destroy (unlit) a block according to one of its 10 coordinates */
 void find_des(int x, int y, struct Ball* ptr){
 if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
-
+    ptr->score++;
+    tickscore(ptr->score,ptr);
     int i = 0;
     while(field[128*(y>>3)+(x+i)] & (0x1 << (y % 8))){
       unlit(x+i,y-1);
@@ -153,8 +167,6 @@ if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
       unlit(x-i,y+1);
       i++;
     }
-    ptr->score++;
-    tickscore(ptr->score);
   }
 }
 
@@ -288,13 +300,7 @@ void ball(struct Ball* ptr){
     break;
 
     case 8:
-    /*
-    quicksleep(10000000);
-    x = 28;
-    y = 18;
-    b_dir = 4;
-    quicksleep(10000000);
-    */
+    //gameover();
     break;
 
     default:
@@ -303,6 +309,7 @@ void ball(struct Ball* ptr){
   }
 
 }
+
 
 /* Some initializations */
 void labinit( void )
@@ -372,9 +379,9 @@ void start(){
 void updatescore(){
   int position = 0;
   //Validate that the player should be listed in High score
-  if(playerscore < score1){position++;}else{score1=playerscore;}
-  if(playerscore < score2){position++;}else{score2=playerscore;}
-  if(playerscore < score3){return;}else{score3=playerscore;}
+  //if(playerscore < score1){position++;}else{score1=playerscore;}
+  //if(playerscore < score2){position++;}else{score2=playerscore;}
+  //if(playerscore < score3){return;}else{score3=playerscore;}
   //Show name and score
   int i = 0;
   int j = 0;
@@ -499,10 +506,10 @@ void labwork( void ) {
     if(getbtns() == 1){           // check if btn2/3/4 is pressed
       switch(menupointer){
         case 0:
-          state = 1;
-          lit(p1, p2, px, py, px2, py2);
         break;
         case 1:
+          state = 2;
+          lit(p1, p2, px, py, px2, py2);
         break;
         case 2:
           state = 3;
@@ -517,15 +524,14 @@ void labwork( void ) {
     break;
     case 1:
 
+    break;
+    case 2:
       btn_status = getbtns();
       if(btn_status & 0x1){moveleftp2();}
       if(btn_status & 0x2){moveright();}
       if(btn_status & 0x4){moveleft();}
       if(btn_status & 0x8){moverightp2();}
       quicksleep(100000);
-
-    break;
-    case 2:
     break;
     case 3:
       if(getbtns() & 0x1){
