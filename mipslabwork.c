@@ -49,7 +49,7 @@ struct Ball {
 
 /* Structs holding the x, y and direction vales of both player balls */
 struct Ball p1 = { 28, 21, 0, 7, 0 };
-struct Ball p2 = { 99, 21, 0, 7, 0 };
+struct Ball p2 = { 85, 27, 2, 20, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -220,14 +220,18 @@ void coll_det(struct Ball* ptr, int* n_dir){
 
     // NW 22.5 degrees
     case 2:
+    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr-> == 125)){ptr->b_dir = 5;}
     if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
     if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+    //if(pixel_check(ptr->x-2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;} Alternative solution for collision bug
     break;
 
     // NE 22.5 degrees
     case 3:
+    if((ptr->x == 2 || ptr->x == 54) || (ptr->x == 73 || ptr-> == 125)){ptr->b_dir = 4;}
     if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
     if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
+    //if(pixel_check(ptr->x+3, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;} Alternative solution for collision bug
     break;
 
     // NW
