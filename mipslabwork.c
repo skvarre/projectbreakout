@@ -17,6 +17,7 @@
 
 /* Initialized for counting timeouts used for ball speed */
 int timeoutcount = 0;
+int timeoutcount2 = 0;
 
 /* Keeps track of the menu pointer */
 int menupointer = 0;
@@ -52,7 +53,7 @@ struct Ball {
 
 /* Structs holding the x, y and direction vales of both player balls */
 struct Ball p1 = { 28, 21, 0, 7, 0 };
-struct Ball p2 = { 99, 21, 6, 7, 0 };
+struct Ball p2 = { 99, 21, 0, 7, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -88,6 +89,9 @@ int* q2 = &n_dir2;
 /* Array to be painted onto the screen */
 uint8_t buffer[4*128];
 
+/* Values used by paddle_hit function */
+int values[9] = {3, 3, 5, 5, 0, 4, 4, 2, 2};
+
 /* Paints players and balls to screen using the field template */
 void lit(struct Ball p1, struct Ball p2, int px, int py, int px2, int py2){
   int k = 0;
@@ -111,17 +115,12 @@ void lit(struct Ball p1, struct Ball p2, int px, int py, int px2, int py2){
 
 /* Calculate new direction for ball according to player position */
 int paddle_hit(int x, int px){
-  int c = px - x;
-  if(c >= -1 && c <= 1){
-    return 4;
+  int c = px - x + 7;
+  if(c >= 0 && c <= 8){
+    return values[c];
+  }else{
+    return -1;
   }
-  if(c >= -4 && c <= -2){
-    return 0;
-  }
-  if(c >= -7 && c <= -5){
-    return 5;
-  }
-  return -1;
 }
 
 /* Kill a specified pixel on screen */
@@ -131,6 +130,9 @@ void unlit(int x, int y){
 
 
 void tickscore(int score, struct Ball* ptr){
+  if(ptr->speed > 1 && score%10 == 0){
+    ptr->speed--;
+  }
   int dig1 = score/100;
   int dig2 = (score/10) % 10;
   int dig3 = score % 10;
@@ -211,17 +213,21 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8; break;}
 
-    if(pixel_check(ptr->x, ptr->y+2, 0)){ptr->b_dir = 0;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x, ptr->y+2, 0)){ptr->b_dir = 0;break;}
+    }
     break;
 
-    // W
+    // NW 22.5 degrees
     case 2:
-    if(pixel_check(ptr->x-1, ptr->y, 1)){ptr->b_dir = 3;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
     break;
 
-    // E
+    // NE 22.5 degrees
     case 3:
-    if(pixel_check(ptr->x+2, ptr->y, 1)){ptr->b_dir = 2;break;}
+    if(pixel_check(ptr->x, ptr->y-1, 0)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
     break;
 
     // NW
@@ -242,9 +248,10 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-
-    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+      if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
+    }
     break;
 
     // SE
@@ -252,14 +259,43 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+      if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+    }
     break;
 
     default:
     break;
-
   }
+}
+
+void reset( void ){
+  int i = 0;
+  for(i; i < 512; i++){
+    field[i] = s_field[i];
+  }
+
+  ptr1->x=28;
+  ptr1->y=21;
+  ptr1->b_dir=0;
+  ptr1->speed=7;
+  ptr1->score=0;
+
+  ptr2->x=99;
+  ptr2->y=21;
+  ptr2->b_dir=0;
+  ptr2->speed=7;
+  ptr2->score=0;
+
+  pos = 409;
+  pos2 = 480;
+
+  px = 25;
+  py = 29;
+
+  px2 = 96;
+  py2 = 29;
 }
 
 /* Update ball coordinates according to current direction */
@@ -277,10 +313,14 @@ void ball(struct Ball* ptr){
 
     case 2:
     ptr->x--;
+    ptr->x--;
+    ptr->y--;
     break;
 
     case 3:
     ptr->x++;
+    ptr->x++;
+    ptr->y--;
     break;
 
     case 4:
@@ -305,6 +345,7 @@ void ball(struct Ball* ptr){
 
     case 8:
     gameover();
+    reset();
     break;
 
     default:
@@ -437,6 +478,15 @@ void updategameoverpoints(){
 }
 
 void gameover(){
+<<<<<<< HEAD
+=======
+  if(state == 2){
+    //ALLOW PLAYER TWO TO INPUT NAME
+
+  }
+
+  state = 4;
+>>>>>>> 2406252d437d946a7d791dca33ba75686cdfadee
   int i = 0;
   for(i; i<512; i++){
     if(state==1){
@@ -473,12 +523,18 @@ void user_isr( void ) {
     }
     IFS(0) &= ~0x100;
     timeoutcount++;
+    timeoutcount2++;
     if(timeoutcount == ptr1->speed){ // 7 default starting speed
       if(state == 1 || state == 2){
         ball(ptr1);
-        ball(ptr2);
       }
       timeoutcount = 0;
+    }
+    if(timeoutcount2 == ptr2->speed){ // 7 default starting speed
+      if(state == 1 || state == 2){
+        ball(ptr2);
+      }
+      timeoutcount2 = 0;
     }
     display_update();
   }
