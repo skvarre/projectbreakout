@@ -48,7 +48,7 @@ struct Ball {
 
 /* Structs holding the x, y and direction vales of both player balls */
 struct Ball p1 = { 28, 21, 0, 7, 0 };
-struct Ball p2 = { 99, 21, 0, 7, 0 };
+struct Ball p2 = { 99, 21, 6, 7, 0 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -464,18 +464,18 @@ void AI( void ){
 /* ISR that updates 100 times a second, used as a screen update */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
-    if(state == 2){
+    if(state == 1 || state == 2){
       if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
       if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
       coll_det(ptr1, q);
       coll_det(ptr2, q2);
       lit(p1, p2, px, py, px2, py2);
-      AI();
+      if(state==1){AI();}
     }
     IFS(0) &= ~0x100;
     timeoutcount++;
     if(timeoutcount == ptr1->speed){ // 7 default starting speed
-      if(state == 2){
+      if(state == 1 || state == 2){
         ball(ptr1);
         ball(ptr2);
       }
@@ -515,6 +515,8 @@ void labwork( void ) {
     if(getbtns() == 1){           // check if btn2/3/4 is pressed
       switch(menupointer){
         case 0:
+          state = 1;
+          lit(p1, p2, px, py, px2, py2);
         break;
         case 1:
           state = 2;
@@ -528,15 +530,16 @@ void labwork( void ) {
         default:
         break;
       }
-
     }
-    break;
     case 1:
-
+      btn_status = getbtns();
+      if(btn_status & 0x2){moveright();}
+      if(btn_status & 0x4){moveleft();}
+      quicksleep(100000);
     break;
     case 2:
-      btn_status = getbtns();
-      if(btn_status & 0x1){moveleftp2();}
+       btn_status = getbtns();
+       if(btn_status & 0x1){moveleftp2();}
       if(btn_status & 0x2){moveright();}
       if(btn_status & 0x4){moveleft();}
       if(btn_status & 0x8){moverightp2();}
