@@ -158,6 +158,34 @@ void tickscore(int score, struct Ball* ptr){
   }
 }
 
+void reset_p1_blocks( void ){
+  ptr1->x=px+3;
+  ptr1->y=21;
+  ptr1->b_dir=0;
+
+  int i = 0;
+  for(i; i < 56; i++){
+    int j = 0;
+    for(j; j < 4; j++){
+      field[j*128+i] = s_field[j*128+i];
+    }
+  }
+}
+
+void reset_p2_blocks( void ){
+  ptr2->x=px2+3;
+  ptr2->y=21;
+  ptr2->b_dir=0;
+
+  int i = 71;
+  for(i; i < 127; i++){
+    int j = 0;
+    for(j; j < 4; j++){
+      field[j*128+i] = s_field[j*128+i];
+    }
+  }
+}
+
 /* Find and destroy (unlit) a block according to one of its 10 coordinates */
 void find_des(int x, int y, struct Ball* ptr){
 if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
@@ -178,6 +206,8 @@ if((y >= 2 && y <= 16) && ((x >= 2 && x <= 54) || (x >= 73 && x <= 125))){
       i++;
     }
   }
+  if(ptr1->score%45 == 0 && ptr1->score != 0){reset_p1_blocks();}
+  if(ptr2->score%45 == 0 && ptr2->score != 0){reset_p2_blocks();}
 }
 
 /* Check if there is a pixel at this coordinate */
