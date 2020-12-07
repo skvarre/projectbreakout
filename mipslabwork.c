@@ -127,15 +127,15 @@ void unlit(int x, int y){
 
 
 void tickscore(int score, struct Ball* ptr){
-  int dig1 = score/100; 
-  int dig2 = (score/10) % 10; 
+  int dig1 = score/100;
+  int dig2 = (score/10) % 10;
   int dig3 = score % 10;
   int currentdig[3] = {dig1, dig2, dig3};
-  int i = 0;  
+  int i = 0;
   int j = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
-      //Tick score depending on who is playing. 
+      //Tick score depending on who is playing.
       if(ptr == &p1){
         player1score[i][j] = numbers[currentdig[i]][j];
         field[186+j+i*4] = numbers[currentdig[i]][j];
@@ -455,7 +455,7 @@ void AI( void ){
 /* ISR that updates 100 times a second, used as a screen update */
 void user_isr( void ) {
   if((IFS(0)>>8) & 0x1){
-    if(state == 1){
+    if(state == 2){
       if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
       if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
       coll_det(ptr1, q);
@@ -466,7 +466,7 @@ void user_isr( void ) {
     IFS(0) &= ~0x100;
     timeoutcount++;
     if(timeoutcount == ptr1->speed){ // 7 default starting speed
-      if(state == 1){
+      if(state == 2){
         ball(ptr1);
         ball(ptr2);
       }
