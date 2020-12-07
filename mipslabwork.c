@@ -48,7 +48,7 @@ struct Ball {
 
 /* Structs holding the x, y and direction vales of both player balls */
 struct Ball p1 = { 28, 21, 0, 7, 0 };
-struct Ball p2 = { 99, 21, 0, 7, 0 };
+struct Ball p2 = { 99, 21, 0, 7, 6 };
 
 /* Pointers to player balls */
 struct Ball *ptr1 = &p1;
@@ -124,6 +124,7 @@ int paddle_hit(int x, int px){
 void unlit(int x, int y){
   field[128*(y>>3)+x] = (field[128*(y>>3)+x] & ~(0x1 << (y % 8)));
 }
+
 
 void tickscore(int score, struct Ball* ptr){
   int dig1 = score/100; 
@@ -309,28 +310,6 @@ void ball(struct Ball* ptr){
 
 }
 
-/* ISR that updates 100 times a second, used as a screen update */
-void user_isr( void ) {
-  if((IFS(0)>>8) & 0x1){
-    if(state == 2){
-      if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
-      if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
-      coll_det(ptr1, q);
-      coll_det(ptr2, q2);
-      lit(p1, p2, px, py, px2, py2);
-    }
-    IFS(0) &= ~0x100;
-    timeoutcount++;
-    if(timeoutcount == ptr1->speed){ // 7 default starting speed
-      if(state == 2){
-        ball(ptr1);
-        ball(ptr2);
-      }
-      timeoutcount = 0;
-    }
-    display_update();
-  }
-}
 
 /* Some initializations */
 void labinit( void )
@@ -403,7 +382,7 @@ void updatescore(){
   //if(playerscore < score1){position++;}else{score1=playerscore;}
   //if(playerscore < score2){position++;}else{score2=playerscore;}
   //if(playerscore < score3){return;}else{score3=playerscore;}
-  //Show name and score 
+  //Show name and score
   int i = 0;
   int j = 0;
   for(i; i<3; i++){
@@ -420,7 +399,7 @@ void score(){
   for(i; i<512; i++){
     buffer[i] = highscore[i];
   }
-  i = 0; 
+  i = 0;
   int j = 0;
   int end = 0;
   for(i; i<3; i++){
@@ -428,7 +407,7 @@ void score(){
     for(j; j<3; j++){
       buffer[131+128*i+j] = numbers[i+1][j] + end;
     }
-    j = 0; 
+    j = 0;
     buffer[131+128*i+4] = 16 + end;
   }
 }
@@ -463,6 +442,39 @@ void gameover(){
   updategameoverpoints();
 }
 
+/* A simple AI that follows the ball according to x coodrinates */
+void AI( void ){
+  if(px2 < ptr2->x){
+    px2++;
+  }
+  if(px2+7 > ptr2->x){
+    px2--;
+  }
+}
+
+/* ISR that updates 100 times a second, used as a screen update */
+void user_isr( void ) {
+  if((IFS(0)>>8) & 0x1){
+    if(state == 1){
+      if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
+      if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
+      coll_det(ptr1, q);
+      coll_det(ptr2, q2);
+      lit(p1, p2, px, py, px2, py2);
+      AI();
+    }
+    IFS(0) &= ~0x100;
+    timeoutcount++;
+    if(timeoutcount == ptr1->speed){ // 7 default starting speed
+      if(state == 1){
+        ball(ptr1);
+        ball(ptr2);
+      }
+      timeoutcount = 0;
+    }
+    display_update();
+  }
+}
 
 /* This function is called repetitively from the main program */
 void labwork( void ) {
@@ -550,7 +562,7 @@ void labwork( void ) {
           positioncounter = 0;
           moveposition = 0;
           lettercounter = 0;
-          state = 0; 
+          state = 0;
           start();
           updatescore();
           quicksleep(1000000);
