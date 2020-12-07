@@ -815,13 +815,13 @@ void labwork( void ) {
     case 4: /* GAME OVER*/
       btn_status = getbtns();
       if(btn_status & 0x4){
-        if(lettercounter == 0){lettercounter = 9;}
+        if(lettercounter == 0){lettercounter = 25;}
         lettercounter--;
         updategameovername();
         quicksleep(1000000);
       }
       if(btn_status & 0x2){
-        if(lettercounter == 8){lettercounter = -1;}
+        if(lettercounter == 24){lettercounter = -1;}
         lettercounter++;
         updategameovername();
         quicksleep(1000000);
