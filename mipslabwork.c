@@ -284,7 +284,7 @@ void coll_det(struct Ball* ptr, int* n_dir){
     // SW
     case 6:
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
-    if(ptr->y == 32){ptr->b_dir = 8;break;}
+    if(ptr->y > 31){ptr->b_dir = 8;break;}
 
     if(ptr->y < 29){
       if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
@@ -295,7 +295,7 @@ void coll_det(struct Ball* ptr, int* n_dir){
     // SE
     case 7:
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
-    if(ptr->y == 32){ptr->b_dir = 8;break;}
+    if(ptr->y > 31){ptr->b_dir = 8;break;}
 
     if(ptr->y < 29){
       if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
