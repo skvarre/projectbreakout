@@ -471,7 +471,9 @@ void updategameoverpoints(){
   for(i; i<3; i++){
     for(j; j<3; j++){
       buffer[194+j+i*4] = player1score[i][j] << 3;
-      buffer[322+j+i*4] = player2score[i][j] << 3;
+      if(state==2){
+        buffer[322+j+i*4] = player2score[i][j] << 3;
+      }
     }
     j = 0;
   }
@@ -486,9 +488,9 @@ void gameover(){
       buffer[i] = gameoverscreen2[i];
     }
   }
-  state=4; 
   updategameover();
   updategameoverpoints();
+  state=4; 
 }
 
 /* A simple AI that follows the ball according to x coodrinates */
