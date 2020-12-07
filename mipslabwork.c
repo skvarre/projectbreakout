@@ -112,6 +112,10 @@ void lit(struct Ball p1, struct Ball p2, int px, int py, int px2, int py2){
 /* Calculate new direction for ball according to player position */
 int paddle_hit(int x, int px){
   int c = px - x + 7;
+  // Special case for AI
+  if(c == 4 && state == 1 && (x >= 72 && x <= 125)){
+    return values[3];
+  }
   if(c >= 0 && c <= 8){
     return values[c];
   }else{
@@ -126,7 +130,7 @@ void unlit(int x, int y){
 
 
 void tickscore(int score, struct Ball* ptr){
-  if(ptr->speed > 1 && score%10 == 0){
+  if(ptr->speed > 1 && score%15 == 0){
     ptr->speed--;
   }
   int dig1 = score/100;
@@ -490,11 +494,25 @@ void gameover(){
 
 /* A simple AI that follows the ball according to x coodrinates */
 void AI( void ){
-  if(px2 < ptr2->x){
-    px2++;
+  if(!(field[pos2+8] & 0x20)){
+    /*if(ptr2->b_dir == 1 && ptr2->y == 27){
+      px2++;
+      pos2++;
+    }*/
+    if(px2 < ptr2->x){
+      px2++;
+      pos2++;
+    }
   }
-  if(px2+7 > ptr2->x){
-    px2--;
+  if(!(field[pos2-1] & 0x20)){
+    /*if(ptr2->b_dir == 1 && ptr2->y == 26){
+      px2--;
+      pos2--;
+    }*/
+    if(px2+7 > ptr2->x){
+      px2--;
+      pos2--;
+    }
   }
 }
 
