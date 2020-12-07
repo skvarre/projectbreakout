@@ -36,6 +36,10 @@ uint8_t first[3][3];
 uint8_t second[3][3];
 uint8_t third[3][3];
 
+/* Player names */
+uint8_t player1[3][4];
+uint8_t player2[3][4];
+
 /* High score */
 int score1 = 0;
 int score2 = 0;
@@ -421,28 +425,27 @@ void updategameover(){
 }
 
 void updategameoverpoints(){
-  /*PLACEHOLDER */
   int i = 0;
   int j = 0;
   for(i; i<3; i++){
     for(j; j<3; j++){
       buffer[194+j+i*4] = player1score[i][j] << 3;
+      buffer[322+j+i*4] = player2score[i][j] << 3;
     }
     j = 0;
   }
 }
 
 void gameover(){
-  if(state == 2){
-    //ALLOW PLAYER TWO TO INPUT NAME
-    
-  }
-
-  state = 4;
   int i = 0;
   for(i; i<512; i++){
-    buffer[i] = gameoverscreen[i];
+    if(state==1){
+      buffer[i] = gameoverscreen1[i];
+    }else if(state==2){
+      buffer[i] = gameoverscreen2[i];
+    }
   }
+  state=4; 
   updategameover();
   updategameoverpoints();
 }
@@ -535,7 +538,7 @@ void labwork( void ) {
     break;
     case 2:
        btn_status = getbtns();
-       if(btn_status & 0x1){moveleftp2();}
+      if(btn_status & 0x1){moveleftp2();}
       if(btn_status & 0x2){moveright();}
       if(btn_status & 0x4){moveleft();}
       if(btn_status & 0x8){moverightp2();}
