@@ -207,7 +207,9 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8; break;}
 
-    if(pixel_check(ptr->x, ptr->y+2, 0)){ptr->b_dir = 0;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x, ptr->y+2, 0)){ptr->b_dir = 0;break;}
+    }
     break;
 
     // W
@@ -238,9 +240,10 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-
-    if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x-1, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 7;break;}
+      if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 4;break;}
+    }
     break;
 
     // SE
@@ -248,13 +251,14 @@ void coll_det(struct Ball* ptr, int* n_dir){
     if(ptr->y == 27 && *n_dir != -1){ptr->b_dir = *n_dir;break;}
     if(ptr->y == 32){ptr->b_dir = 8;break;}
 
-    if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
-    if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+    if(ptr->y < 29){
+      if(pixel_check(ptr->x+2, ptr->y, 1)){find_des(sx,sy,ptr);ptr->b_dir = 6;break;}
+      if(pixel_check(ptr->x, ptr->y+2, 0)){find_des(sx,sy,ptr);ptr->b_dir = 5;break;}
+    }
     break;
 
     default:
     break;
-
   }
 }
 
@@ -435,7 +439,7 @@ void updategameoverpoints(){
 void gameover(){
   if(state == 2){
     //ALLOW PLAYER TWO TO INPUT NAME
-    
+
   }
 
   state = 4;
