@@ -29,6 +29,8 @@ int state = 0;
 int lettercounter = 0;
 int positioncounter = 0;
 int moveposition = 0;
+int oneplayer = 0; 
+int twoplayer = 0;
 
 /* High score pixels */
 uint8_t player1score[3][3];
@@ -457,11 +459,43 @@ void score(){
   }
 }
 
-void updategameover(){
+void updateletter(){
+  /** Update the position so we get a new letter**/
+  positioncounter++;
+  if(positioncounter < 3){moveposition += 5;}
+  if(positioncounter == 3){
+    /* Set everything to zero*/
+    positioncounter = 0;
+    moveposition = 0;
+    lettercounter = 0;
+    //If it's one player mode, we're done - else run algorithm again.
+    if(!twoplayer){ 
+      state = 0;
+      start();
+      updatescore();
+      quicksleep(1000000);
+    }else{
+      oneplayer=0; 
+      twoplayer = 0;
+      updategameovername();
+      quicksleep(1000000);
+    }
+  }else{
+    updategameovername();
+    quicksleep(1000000);
+  }
+}
+
+void updategameovername(){
   int i = 0;
   for(i; i<4; i++){
-    buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
-    player1[positioncounter][i] = letters[lettercounter][i];
+    if(oneplayer || twoplayer){
+      buffer[163+i+moveposition] = letters[lettercounter][i] << 3;
+      player1[positioncounter][i] = letters[lettercounter][i];
+    }else if(!oneplayer && !twoplayer){
+      buffer[291+i+moveposition] = letters[lettercounter][i] << 3;
+      player2[positioncounter][i] = letters[lettercounter][i];
+    }  
   }
 }
 
@@ -481,6 +515,7 @@ void updategameoverpoints(){
 
 void gameover(){
   int i = 0;
+  //Paint gameover
   for(i; i<512; i++){
     if(state==1){
       buffer[i] = gameoverscreen1[i];
@@ -488,7 +523,9 @@ void gameover(){
       buffer[i] = gameoverscreen2[i];
     }
   }
-  updategameover();
+  if(state==1){oneplayer = 1;}
+  else{twoplayer = 1;}
+  updategameovername();
   updategameoverpoints();
   state=4; 
 }
@@ -569,6 +606,7 @@ void labwork( void ) {
         case 1:
           state = 2;
           lit(p1, p2, px, py, px2, py2);
+          quicksleep(1000000);
         break;
         case 2:
           state = 3;
@@ -605,31 +643,17 @@ void labwork( void ) {
       if(btn_status & 0x4){
         if(lettercounter == 0){lettercounter = 9;}
         lettercounter--;
-        updategameover();
+        updategameovername();
         quicksleep(1000000);
       }
       if(btn_status & 0x2){
         if(lettercounter == 8){lettercounter = -1;}
         lettercounter++;
-        updategameover();
+        updategameovername();
         quicksleep(1000000);
       }
       if(btn_status & 0x1){
-        positioncounter++;
-        if(positioncounter < 3){moveposition += 5;}
-        if(positioncounter == 3){
-          /* Set everything to zero and enter main screen*/
-          positioncounter = 0;
-          moveposition = 0;
-          lettercounter = 0;
-          state = 0;
-          start();
-          updatescore();
-          quicksleep(1000000);
-        }else{
-          updategameover();
-          quicksleep(1000000);
-        }
+        updateletter();
       }
     break;
     default:
