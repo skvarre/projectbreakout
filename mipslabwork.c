@@ -118,7 +118,7 @@ int paddle_hit(int x, int px){
   int c = px - x + 7;
   // Special case for AI
   if(c == 4 && state == 1 && (x >= 72 && x <= 125)){
-    return values[3];
+    return values[8];
   }
   if(c >= 0 && c <= 8){
     return values[c];

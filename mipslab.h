@@ -14,6 +14,9 @@ void display_string(int line, char *s);
 void display_update(void);
 uint8_t spi_send_recv(uint8_t data);
 
+/* work around stuff */
+void *stdin, *stdout, *stderr;
+
 /* Declare lab-related functions from mipslabfunc.c */
 char * itoaconv( int num );
 void labwork(void);
@@ -44,7 +47,7 @@ extern uint8_t buffer[4*128];
 extern uint8_t startscreen[4*128];
 extern uint8_t highscore[4*128];
 extern uint8_t gameoverscreen1[4*128];
-extern uint8_t gameoverscreen2[4*128]; 
+extern uint8_t gameoverscreen2[4*128];
 extern uint8_t player1[3][4];
 extern uint8_t s_field[4*128];
 
