@@ -532,7 +532,7 @@ void printhighscoreinfo(int position, uint8_t player[3][4], uint8_t score[3][3])
   for(i; i<3; i++){
     for(j; j<4; j++){
       highscore[138+128*position+j+i*5] = player[i][j];
-      if(position==2){highscore[138+128*position+j+i*5] = highscore[138+128*position+j+i*5]+128;}
+      if(position==2){highscore[138+128*position+j+i*5] += 128;}
     }
     j=0;
   }
@@ -541,7 +541,7 @@ void printhighscoreinfo(int position, uint8_t player[3][4], uint8_t score[3][3])
   for(k; k<3; k++){
     for(l; l<3; l++){
       highscore[168+128*position+l+k*4] = score[k][l];
-      if(position==2){highscore[168+128*position+k+l*4] = highscore[168+128*position+k+l*4]+128;}
+      if(position==2){highscore[168+128*position+l+k*4] += 128;}
     }
     l=0;
   }
