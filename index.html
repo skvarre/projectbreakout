@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChipKit Game Emulator</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="128" height="32"></canvas>
+    <script src="game.js"></script>
+    <script>
+        Module.onRuntimeInitialized = function() {
+            Module._init_game();
+            gameLoop();
+        };
+    </script>
+</body>
+</html>

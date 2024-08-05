@@ -1,3 +1,9 @@
+EMCC = emcc
+EMFLAGS = -s WASM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS="['_main', '_labwork', '_getbtns']" -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
+EMLDFLAGS = -s WASM=1
+
+WASM_TARGET = $(PROGNAME).js
+
 # PIC32 device number
 DEVICE		= 32MX320F128H
 
@@ -34,13 +40,18 @@ OBJFILES	+=$(SYMSFILES:.syms=.syms.o)
 DEPDIR = .deps
 df = $(DEPDIR)/$(*F)
 
-.PHONY: all clean install envcheck
+wasm: $(WASM_TARGET)
+
+$(WASM_TARGET): $(CFILES)
+    $(EMCC) $(EMFLAGS) $(EMLDFLAGS) $^ -o $@
+
+.PHONY: all clean install envcheck wasm
 .SUFFIXES:
 
-all: $(HEXFILE)
+all: $(HEXFILE) $(WASM_TARGET)
 
 clean:
-	$(RM) $(HEXFILE) $(ELFFILE) $(OBJFILES)
+	$(RM) $(HEXFILE) $(ELFFILE) $(OBJFILES) $(WASM_TARGET) $(PROGNAME).wasm
 	$(RM) -R $(DEPDIR)
 
 envcheck:
@@ -80,6 +91,8 @@ $(DEPDIR):
 %.syms.o: %.syms
 	$(LD) -o $@ -r --just-symbols=$<
 
+
 # Check dependencies
 -include $(CFILES:%.c=$(DEPDIR)/%.c.P)
 -include $(ASFILES:%.S=$(DEPDIR)/%.S.P)
+

@@ -5,15 +5,21 @@
 
    This file should be changed by YOU! So you must
    add comment(s) here with your name(s) and date(s):
+   
+   This file was modified December 2020 by Tim Olsén & Robin Nordmark 
+   Contains logic for breakout game.
 
-   This file modified 2017-04-31 by Ture Teknolog
+   This file has been further modified 2024 by Tim Olsén to implement WASM. 
 
    For copyright and licensing, see file COPYING */
 
 #include <stdint.h>   /* Declarations of uint_32 and the like */
-#include <pic32mx.h>  /* Declarations of system-specific addresses etc */
+// #include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
+#include <emscripten.h>
+
+EMSCRIPTEN_KEEPALIVE
 
 /* Initialized for counting timeouts used for ball speed */
 int timeoutcount = 0;
@@ -91,6 +97,24 @@ uint8_t buffer[4*128];
 
 /* Values used by paddle_hit function */
 int values[9] = {3, 3, 5, 5, 0, 4, 4, 2, 2};
+
+/* Adjusted for WASM */
+int getbtns( void ) {
+  return EM_ASM_INT({ return Module.getButtons(); });
+}
+
+void display_update(void) {
+    EM_ASM({ Module.updateDisplay(); });
+}
+
+void set_pixel(int x, int y, int value) {
+    int byte = (y * 16) + (x / 8);
+    int bit = 7 - (x % 8);
+    if (value)
+        buffer[byte] |= (1 << bit);
+    else
+        buffer[byte] &= ~(1 << bit);
+}
 
 /* Paints players and balls to screen using the field template */
 void lit(struct Ball p1, struct Ball p2, int px, int py, int px2, int py2){
