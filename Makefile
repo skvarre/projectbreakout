@@ -1,9 +1,3 @@
-EMCC = emcc
-EMFLAGS = -s WASM=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS="['_main', '_labwork', '_getbtns']" -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"
-EMLDFLAGS = -s WASM=1
-
-WASM_TARGET = $(PROGNAME).js
-
 # PIC32 device number
 DEVICE		= 32MX320F128H
 
@@ -40,19 +34,8 @@ OBJFILES	+=$(SYMSFILES:.syms=.syms.o)
 DEPDIR = .deps
 df = $(DEPDIR)/$(*F)
 
-wasm: $(WASM_TARGET)
-
-$(WASM_TARGET): $(CFILES)
-    $(EMCC) $(EMFLAGS) $(EMLDFLAGS) $^ -o $@
-
-.PHONY: all clean install envcheck wasm
+.PHONY: all clean install envcheck
 .SUFFIXES:
-
-all: $(HEXFILE) $(WASM_TARGET)
-
-clean:
-	$(RM) $(HEXFILE) $(ELFFILE) $(OBJFILES) $(WASM_TARGET) $(PROGNAME).wasm
-	$(RM) -R $(DEPDIR)
 
 envcheck:
 	@echo "$(TARGET)" | grep mcb32 > /dev/null || (\
@@ -69,7 +52,7 @@ install: envcheck
 	$(TARGET)avrdude -v -p $(shell echo "$(DEVICE)" | tr '[:lower:]' '[:upper:]') -c stk500v2 -P "$(TTYDEV)" -b $(TTYBAUD) -U "flash:w:$(HEXFILE)"
 
 $(ELFFILE): $(OBJFILES) envcheck
-	$(CC) $(CFLAGS) -o $@ $(OBJFILES) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(OBJFILES)
 
 $(HEXFILE): $(ELFFILE) envcheck
 	$(TARGET)bin2hex -a $(ELFFILE)
