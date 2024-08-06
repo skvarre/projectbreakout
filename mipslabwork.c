@@ -99,14 +99,15 @@ uint8_t buffer[4*128];
 /* Values used by paddle_hit function */
 int values[9] = {3, 3, 5, 5, 0, 4, 4, 2, 2};
 
-/* Adjusted for WASM */
-int getbtns( void ) {
-  return EM_ASM_INT({ return Module.getButtons(); });
+EMSCRIPTEN_KEEPALIVE
+void handleButton(int button) {
+    // Implement button handling logic here
+    // For example:
+    if (button == 0) moveleft();
+    if (button == 1) moveright();
+    // Add more button handling as needed
 }
 
-void display_update(void) {
-    EM_ASM({ Module.updateDisplay(); });
-}
 
 void set_pixel(int x, int y, int value) {
     int byte = (y * 16) + (x / 8);
@@ -746,7 +747,9 @@ void AI( void ){
 }
 
 /* ISR that updates 100 times a second, used as a screen update */
+EMSCRIPTEN_KEEPALIVE
 void user_isr(void) {
+    // emscripten_log(EM_LOG_CONSOLE, "user_isr called");
     if(state == 1 || state == 2){
         if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
         if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
@@ -773,7 +776,9 @@ void user_isr(void) {
     display_update();
 }
 /* This function is called repetitively from the main program */
+EMSCRIPTEN_KEEPALIVE
 void labwork( void ) {
+  // emscripten_log(EM_LOG_CONSOLE, "labwork called, btn_status: %d, state: %d", btn_status, state);
   /**
    * STATE 0: MAIN TITLE SCREEN
    * STATE 1: P1 GAME MODE
@@ -781,6 +786,7 @@ void labwork( void ) {
    * STATE 3: HIGH SCORE
    * STATE 4: GAME OVER SCREEN
    **/
+  // emscripten_log(EM_LOG_CONSOLE, "State: %d", state);
   switch(state){
     case 0:
     if(getbtns() == 2){
@@ -820,6 +826,9 @@ void labwork( void ) {
       }
     }
     case 1:
+      // emscripten_log(EM_LOG_CONSOLE, "In game state: %d", state);
+      // emscripten_log(EM_LOG_CONSOLE, "Ball 1 position: x=%d, y=%d", p1.x, p1.y);
+      // emscripten_log(EM_LOG_CONSOLE, "Ball 2 position: x=%d, y=%d", p2.x, p2.y);
       btn_status = getbtns();
       if(btn_status & 0x2){moveright();}
       if(btn_status & 0x4){moveleft();}
@@ -827,10 +836,10 @@ void labwork( void ) {
     break;
     case 2:
        btn_status = getbtns();
-      if(btn_status & 0x1){moveleftp2();}
+      if(btn_status & 0x8){moveleftp2();}
       if(btn_status & 0x2){moveright();}
       if(btn_status & 0x4){moveleft();}
-      if(btn_status & 0x8){moverightp2();}
+      if(btn_status & 0x10){moverightp2();}
       quicksleep(100000);
     break;
     case 3:

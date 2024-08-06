@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ChipKit Game Emulator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM Game</title>
 </head>
 <body>
-    <canvas id="gameCanvas" width="128" height="32"></canvas>
-    <script src="game.js"></script>
+    <canvas id="gameCanvas" width="128" height="32" style="width: 512px; height: 128px; image-rendering: pixelated;"></canvas>
+    <script src="game_interface.js"></script>
     <script>
-        Module.onRuntimeInitialized = function() {
-            Module._init_game();
-            gameLoop();
+        window.onload = function() {
+            console.log("Window loaded");
+            if (Module.onRuntimeInitialized) {
+                console.log("Module.onRuntimeInitialized exists");
+            } else {
+                console.log("Module.onRuntimeInitialized does not exist");
+            }
         };
     </script>
+    <script async src="game.js"></script>
 </body>
 </html>

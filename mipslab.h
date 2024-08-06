@@ -8,14 +8,24 @@
    For copyright and licensing, see file COPYING */
 
 /* Declare display-related functions from mipslabfunc.c */
+#ifndef MIPSLAB_H
+#define MIPSLAB_H
+#include <stdint.h>
 void display_image(int x, const uint8_t *data);
 void display_init(void);
 void display_string(int line, char *s);
 void display_update(void);
+void labinit(void);
+void start(void);
+void handleButton(int button);
+void moveleft(void);
+void moveright(void);
+void user_isr(void);
 uint8_t spi_send_recv(uint8_t data);
 
+
 /* work around stuff */
-void *stdin, *stdout, *stderr;
+extern void *stdin, *stdout, *stderr;
 
 /* Declare lab-related functions from mipslabfunc.c */
 char * itoaconv( int num );
@@ -74,4 +84,5 @@ void time2string( char *, int );
 int getbtns(void);
 int getbtn1(void);
 int getsw(void);
-void enable_interrupt(void);
+// void enable_interrupt(void);
+#endif
