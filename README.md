@@ -1,24 +1,51 @@
-# projectbreakout
-This games objective is to break all the blocks at the top of the screen and indoing so collecting a high score.
-
-Just like in Pong there is a paddle that theplayer controls to bounce the ball and the trajectory of the ball is determined by which angle the ball hits the paddle.  The player have a set number of livesthat are lost if the ball leaves the playing field.
-
-The following are requirements that are crucial to the success of the project:
+# Breakout
 
 
-•Pixel graphics that updates smoothly.
+## About 
 
-•How the ball interacts (physics) with the environment.
+This is an implementation of the classic game breakout for the ChipKIT PIC32 microcontroller. The hardware specific code has been adjusted to run via WebAssembly. 
 
-•High score implementation.
+The objective of the game is to break all the blocks at the top of the screen and in doing so collecting a high score. Just like in Pong there is a paddle that the player controls to bounce the ball and the trajectory of the ball is determined by which angle the ball hits the paddle.
 
-•Multiple difficulties.
+## How to run
 
-•Both one and two player modes.
+For a live version of the game, refer to (link)
 
-Some optional features that we may include if we have enough time are as follows:
-•Power ups in the form of different abilities that can be used.
+### Prerequisites
 
-•Blocks have different health gauges and in so takes multiple hits to destroy.
 
-•Health points can be displayed using the I/O shield LEDS
+The WebAssembly port of this project was made with the [emscripten](https://emscripten.org/) toolchain and all its dependencies.  
+
+> For the ChipKIT PIC32 implementation of this project, refer to commit ()
+
+### Build
+
+> Note: Building the project is not necessary if you only want to test it. In that case, continue to the next section. 
+
+- To build the project, use the `Makefile` in the `src` directory.
+
+```sh
+make
+```
+- To clean up the compiled files, run:
+```sh
+make clean
+```
+
+
+### Run
+
+To run this project, you'll need to start a localhost server. Here's an example in Python 3.X:
+
+```python
+python -m http.server 8000
+```
+
+Then navigate to https://localhost:8000
+
+
+
+## Contributors
+
+This was made as a school project in 2020 by Robin Nordmark and Tim Olsén. It was ported in 2024 to WebAssembly by Tim Olsén. 
+
