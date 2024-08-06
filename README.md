@@ -20,7 +20,7 @@ For a live version of the game, refer to (link)
 
 The WebAssembly port of this project was made with the [emscripten](https://emscripten.org/) toolchain and all its dependencies.  
 
-> For the ChipKIT PIC32 implementation of this project, refer to commit ()
+> For the ChipKIT PIC32 implementation of this project, refer to commit [50f46fe](https://github.com/skvarre/projectbreakout/tree/50f46fe1ae42a529c88e8b7a9916700b7a2b7f83)
 
 ### Build
 
