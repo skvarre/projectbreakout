@@ -49,7 +49,7 @@ var Module = {
     
             if (keyRepeatTimer === null) {
                 keyRepeatTimer = setInterval(() => {
-                    console.log('Key repeat, keyState:', this.keyState);
+                    // console.log('Key repeat, keyState:', this.keyState);
                     Module.ccall('labwork', null, [], []);
                 }, keyRepeatDelay);
             }
