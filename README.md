@@ -51,5 +51,5 @@ Then navigate to https://localhost:8000
 
 ## Contributors
 
-This was made as a school project in 2020 by Robin Nordmark and Tim Olsén. It was ported in 2024 to WebAssembly by Tim Olsén. 
+This was made as a school project in 2020 by [Robin Nordmark](https://github.com/Topl3x) and [Tim Olsén](https://github.com/skvarre). It was ported in 2024 to WebAssembly by [Tim Olsén](https://github.com/skvarre). 
 
