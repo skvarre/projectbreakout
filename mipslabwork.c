@@ -18,6 +18,7 @@
 #include <string.h>
 #include "mipslab.h"  /* Declatations for these labs */
 #include <emscripten.h>
+#include "wasm_stubs.h"
 
 EMSCRIPTEN_KEEPALIVE
 
@@ -484,27 +485,33 @@ void ball(struct Ball* ptr){
 }
 
 
-/* Some initializations */
+// /* Some initializations */
+// void labinit( void )
+// {
+//   volatile int* trise = (volatile int*) 0xbf886100;
+//   *trise&=255;
+//   *(trise + 0x10) = 0; /* setting porte to 0 */
+//   TRISD |= 0xfe0;
+//   TRISF |= 0x2;
+
+//   T2CON = 0x70; //Decides what scaler we want to use
+//   TMR2 = 0x0;
+//   PR2 = (80000000/256)/100;
+
+//   PORTE = 0;
+//   //IPC(3) &= 0x1b000000;
+//   IPC(2) = 31; //Set to highest priority
+//   IFS(0) &= ~0x100;
+//   IEC(0) = 0x100; //Enable
+//   //IEC(0) = 0x8100; //Enable interrupt 3
+//   T2CONSET = 0x8000;
+//   enable_interrupt();
+// }
+
+/* WASM Init */
 void labinit( void )
 {
-  volatile int* trise = (volatile int*) 0xbf886100;
-  *trise&=255;
-  *(trise + 0x10) = 0; /* setting porte to 0 */
-  TRISD |= 0xfe0;
-  TRISF |= 0x2;
 
-  T2CON = 0x70; //Decides what scaler we want to use
-  TMR2 = 0x0;
-  PR2 = (80000000/256)/100;
-
-  PORTE = 0;
-  //IPC(3) &= 0x1b000000;
-  IPC(2) = 31; //Set to highest priority
-  IFS(0) &= ~0x100;
-  IEC(0) = 0x100; //Enable
-  //IEC(0) = 0x8100; //Enable interrupt 3
-  T2CONSET = 0x8000;
-  enable_interrupt();
 }
 
 /* Move players left or right */
@@ -739,35 +746,32 @@ void AI( void ){
 }
 
 /* ISR that updates 100 times a second, used as a screen update */
-void user_isr( void ) {
-  if((IFS(0)>>8) & 0x1){
+void user_isr(void) {
     if(state == 1 || state == 2){
-      if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
-      if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
-      coll_det(ptr1, q);
-      coll_det(ptr2, q2);
-      lit(p1, p2, px, py, px2, py2);
-      if(state==1){AI();}
+        if(p1.y == 27){n_dir = paddle_hit(p1.x, px);}
+        if(p2.y == 27){n_dir2 = paddle_hit(p2.x, px2);}
+        coll_det(ptr1, q);
+        coll_det(ptr2, q2);
+        lit(p1, p2, px, py, px2, py2);
+        if(state==1){AI();}
     }
-    IFS(0) &= ~0x100;
+    
     timeoutcount++;
     timeoutcount2++;
     if(timeoutcount == ptr1->speed){ // 7 default starting speed
-      if(state == 1 || state == 2){
-        ball(ptr1);
-      }
-      timeoutcount = 0;
+        if(state == 1 || state == 2){
+            ball(ptr1);
+        }
+        timeoutcount = 0;
     }
     if(timeoutcount2 == ptr2->speed){ // 7 default starting speed
-      if(state == 1 || state == 2){
-        ball(ptr2);
-      }
-      timeoutcount2 = 0;
+        if(state == 1 || state == 2){
+            ball(ptr2);
+        }
+        timeoutcount2 = 0;
     }
     display_update();
-  }
 }
-
 /* This function is called repetitively from the main program */
 void labwork( void ) {
   /**
