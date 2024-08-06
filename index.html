@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Breakout</title>
+    <style>
+        .non-selectable {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+    </style>
 </head>
 <body class="bg-white flex flex-col items-center justify-center min-h-screen p-4">
     <main class="max-w-2xl w-full">
@@ -22,12 +31,12 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2">Menu Navigation:</h3>
                         <div class="flex items-center space-x-4">
-                            <img src="img/left-arrow.png" alt="Left Arrow" class="w-8 h-8">
-                            <img src="img/right-arrow.png" alt="Right Arrow" class="w-8 h-8">
+                            <img src="img/left-arrow.png" alt="Left Arrow" class="w-8 h-8 non-selectable" draggable="false">
+                            <img src="img/right-arrow.png" alt="Right Arrow" class="w-8 h-8 non-selectable" draggable="false">
                             <span class="ml-2 text-lg">Navigate</span>
                         </div>
                         <div class="flex items-center space-x-4 mt-2  pl-12">
-                            <img src="img/enter.png" alt="Enter" class="w-8 h-9">
+                            <img src="img/enter.png" alt="Enter" class="w-8 h-9 non-selectable" draggable="false">
                             <span class="ml-2 text-lg">Select</span>
                         </div>
                     </div>
@@ -35,8 +44,8 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2">Player 1:</h3>
                         <div class="flex items-center space-x-4">
-                            <img src="img/left-arrow.png" alt="Left Arrow" class="w-8 h-8">
-                            <img src="img/right-arrow.png" alt="Right Arrow" class="w-8 h-8">
+                            <img src="img/left-arrow.png" alt="Left Arrow" class="w-8 h-8 non-selectable" draggable="false">
+                            <img src="img/right-arrow.png" alt="Right Arrow" class="w-8 h-8 non-selectable" draggable="false">
                             <span class="ml-2 text-lg">Move</span>
                         </div>
                     </div>
@@ -44,8 +53,8 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2">Player 2:</h3>
                         <div class="flex items-center space-x-4">
-                            <img src="img/a-key.png" alt="A Key" class="w-8 h-8">
-                            <img src="img/d-key.png" alt="D Key" class="w-8 h-8">
+                            <img src="img/a-key.png" alt="A Key" class="w-8 h-8 non-selectable" draggable="false">
+                            <img src="img/d-key.png" alt="D Key" class="w-8 h-8 non-selectable" draggable="false">
                             <span class="ml-2 text-lg">Move</span>
                         </div>
                     </div>
