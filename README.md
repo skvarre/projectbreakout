@@ -1,5 +1,9 @@
 # Breakout
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2816e2d7-233e-441a-800a-34bca7a08b0d" alt="Image">
+</p>
+
 
 ## About 
 
