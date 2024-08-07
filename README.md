@@ -13,7 +13,7 @@ The objective of the game is to break all the blocks at the top of the screen an
 
 ## How to run
 
-For a live version of the game, refer to (link)
+For a live version of the game, refer to this [link](https://projectbreakout.vercel.app/).
 
 ### Prerequisites
 
